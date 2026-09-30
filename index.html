@@ -659,14 +659,9 @@ function renderAll() {
   renderGrafikAlat();
 }
 
-/* ================================================================
-   ✅ PATCH: renderKpi — hitung per NIK unik (grade tertinggi)
-   ================================================================ */
 function renderKpi(rows) {
   document.getElementById("kpi-employee-value").textContent = allData.personel.length;
   document.getElementById("kpi-machine-value").textContent = rows.length;
-
-  // Hitung grade tertinggi per NIK (unik)
   const gradeOrder = { "A": 1, "B": 2, "C": 3, "D": 4 };
   const gradePerNIK = {};
   rows.forEach(r => {
@@ -677,23 +672,16 @@ function renderKpi(rows) {
       gradePerNIK[nik] = gf;
     }
   });
-
   const countGradeA = Object.values(gradePerNIK).filter(g => g === "A").length;
   const countGradeD = Object.values(gradePerNIK).filter(g => g === "D").length;
-
   document.getElementById("kpi-grade-a-value").textContent = countGradeA;
   document.getElementById("kpi-grade-d-value").textContent = countGradeD;
-
   const mesinSet = new Set();
   Object.values(allData.mesin || {}).forEach(arr => arr.forEach(m => mesinSet.add(m)));
   document.getElementById("kpi-gap-value").textContent = mesinSet.size;
 }
 
-/* ================================================================
-   ✅ PATCH: renderDistribusi — hitung per NIK unik
-   ================================================================ */
 function renderDistribusi(rows) {
-  // Hitung grade tertinggi per NIK (unik)
   const gradeOrder = { "A": 1, "B": 2, "C": 3, "D": 4 };
   const gradePerNIK = {};
   rows.forEach(r => {
@@ -704,13 +692,9 @@ function renderDistribusi(rows) {
       gradePerNIK[nik] = gf;
     }
   });
-
-  // Hitung jumlah per grade dari data unik NIK
   const dist = { A: 0, B: 0, C: 0, D: 0 };
   Object.values(gradePerNIK).forEach(g => { dist[g]++; });
-
   const total = Object.values(dist).reduce((a, b) => a + b, 0) || 1;
-
   ["A","B","C","D"].forEach(g => {
     const c = dist[g];
     const p = Math.round(c / total * 100);
@@ -719,16 +703,39 @@ function renderDistribusi(rows) {
   });
 }
 
+/* ================================================================
+   ✅ PATCH: renderOverview — 1 NIK 1 grade tertinggi per mesin
+   ================================================================ */
 function renderOverview(rows) {
-  const groups = {};
+  const gradeOrder = { "A": 1, "B": 2, "C": 3, "D": 4 };
+  const byKey = {};
+
   rows.forEach(r => {
+    const nik = String(r["NIK"] || "").trim();
+    if (!nik) return;
     const area = r["Area"] || "Lainnya";
     const mesin = r["Mesin"] || "-";
-    if (!groups[area]) groups[area] = {};
-    if (!groups[area][mesin]) groups[area][mesin] = { A:0,B:0,C:0,D:0 };
-    const gf = r["Grade Final"];
-    if (groups[area][mesin][gf] !== undefined) groups[area][mesin][gf]++;
+    const gf = String(r["Grade Final"] || "").toUpperCase();
+    if (!gf || gf === "-" || !gradeOrder[gf]) return;
+
+    const key = nik + "||" + area + "||" + mesin;
+    if (!byKey[key]) {
+      byKey[key] = { area: area, mesin: mesin, gradeTertinggi: gf, nik: nik };
+    } else {
+      if (gradeOrder[gf] > gradeOrder[byKey[key].gradeTertinggi]) {
+        byKey[key].gradeTertinggi = gf;
+      }
+    }
   });
+
+  const groups = {};
+  Object.values(byKey).forEach(item => {
+    const { area, mesin, gradeTertinggi } = item;
+    if (!groups[area]) groups[area] = {};
+    if (!groups[area][mesin]) groups[area][mesin] = { A:0, B:0, C:0, D:0 };
+    groups[area][mesin][gradeTertinggi]++;
+  });
+
   const html = Object.entries(groups).map(([area, mesins]) => `
     <div class="process-group">
       <div class="process-title"><strong>${escapeHtml(area)}</strong><span>${Object.keys(mesins).length} mesin</span></div>
@@ -744,6 +751,7 @@ function renderOverview(rows) {
           </div>
         </article>`).join("")}</div>
     </div>`).join("");
+
   document.getElementById("machine-overview").innerHTML = html || '<div class="empty-row" style="padding:20px">Belum ada data penilaian.</div>';
 }
 
@@ -751,7 +759,7 @@ function renderEmployee() {
   const tb = document.getElementById("employee-table-body");
   if (!tb) return;
   const q = (document.getElementById("personel-search")?.value || "").toLowerCase();
-  const sf = document.getElementById("personel-status-filter")?.value || "";
+  const sf = (document.getElementById("personel-status-filter")?.value || "");
   const isAdmin = currentUser && currentUser.role === "admin";
   let list = allData.personel.slice();
   if (q) list = list.filter(p => `${p["Employee ID"]||""} ${p["Employee Name"]||""} ${p["Job Title Name"]||""} ${p["Organization Name"]||""}`.toLowerCase().includes(q));
@@ -793,25 +801,54 @@ function renderUser() {
   tb.innerHTML = '<tr><td colspan="3" class="empty-row">Data user ada di sheet <strong>User Login</strong>. Klik "+ Tambah User" untuk menambah.</td></tr>';
 }
 
+/* ================================================================
+   ✅ PATCH: renderMachine — 1 NIK 1 grade tertinggi per mesin
+   ================================================================ */
 function renderMachine(rows) {
-  const groups = {};
+  const gradeOrder = { "A": 1, "B": 2, "C": 3, "D": 4 };
+  const byKey = {};
+
   rows.forEach(r => {
-    const key = r["Area"] + "|" + r["Mesin"];
-    if (!groups[key]) groups[key] = { area: r["Area"], mesin: r["Mesin"], A:0,B:0,C:0,D:0, total:0 };
-    const gf = r["Grade Final"];
-    if (groups[key][gf] !== undefined) groups[key][gf]++;
+    const nik = String(r["NIK"] || "").trim();
+    if (!nik) return;
+    const area = r["Area"] || "-";
+    const mesin = r["Mesin"] || "-";
+    const gf = String(r["Grade Final"] || "").toUpperCase();
+    if (!gf || gf === "-" || !gradeOrder[gf]) return;
+
+    const key = nik + "||" + area + "||" + mesin;
+    if (!byKey[key]) {
+      byKey[key] = { area: area, mesin: mesin, gradeTertinggi: gf, nik: nik };
+    } else {
+      if (gradeOrder[gf] > gradeOrder[byKey[key].gradeTertinggi]) {
+        byKey[key].gradeTertinggi = gf;
+      }
+    }
+  });
+
+  const groups = {};
+  Object.values(byKey).forEach(item => {
+    const key = item.area + "|" + item.mesin;
+    if (!groups[key]) {
+      groups[key] = { area: item.area, mesin: item.mesin, A:0, B:0, C:0, D:0, total:0 };
+    }
+    groups[key][item.gradeTertinggi]++;
     groups[key].total++;
   });
+
   const tb = document.getElementById("machine-table-body");
   const list = Object.values(groups);
-  if (!list.length) { tb.innerHTML = '<tr><td colspan="8" class="empty-row">Belum ada data.</td></tr>'; return; }
+  if (!list.length) {
+    tb.innerHTML = '<tr><td colspan="8" class="empty-row">Belum ada data.</td></tr>';
+    return;
+  }
   tb.innerHTML = list.map((g, i) => `
     <tr>
       <td>${i+1}</td>
       <td class="employee-name">${escapeHtml(g.mesin)}</td>
       <td><span class="line-pill">${escapeHtml(g.area)}</span></td>
       <td>${g.A}</td><td>${g.B}</td><td>${g.C}</td><td>${g.D}</td>
-      <td><span class="count-pill">${g.total} penilaian</span></td>
+      <td><span class="count-pill">${g.total} personel</span></td>
     </tr>`).join("");
 }
 
@@ -850,11 +887,7 @@ function renderHistory(rows) {
   renderCharts(rows);
 }
 
-/* ================================================================
-   ✅ PATCH: renderCharts — hitung per NIK unik
-   ================================================================ */
 function renderCharts(rows) {
-  // Hitung grade tertinggi per NIK (unik)
   const gradeOrder = { "A": 1, "B": 2, "C": 3, "D": 4 };
   const gradePerNIK = {};
   rows.forEach(r => {
@@ -865,7 +898,6 @@ function renderCharts(rows) {
       gradePerNIK[nik] = gf;
     }
   });
-
   const dist = { A: 0, B: 0, C: 0, D: 0 };
   Object.values(gradePerNIK).forEach(g => { dist[g]++; });
 
@@ -957,38 +989,25 @@ function renderGrafikAlat() {
   `;
 }
 
-/* ================================================================
-   ✅ PATCH: getTop10ForGrade — 1 NIK hanya muncul di grade tertinggi
-   ================================================================ */
+/* ========== TOP 10 PER GRADE ========== */
 function getTop10ForGrade(grade) {
   const byNIK = {};
   const gradeOrder = { "A": 1, "B": 2, "C": 3, "D": 4 };
-
-  // Step 1: Kumpulkan grade TERTINGGI per NIK dari semua riwayatnya
   allData.report.forEach(r => {
     const nik = String(r["NIK"] || "").trim();
     if (!nik) return;
-
     const gf = String(r["Grade Final"] || "").toUpperCase();
     if (!gf || gf === "-" || !gradeOrder[gf]) return;
-
     const skor = Number(r["Skor (%)"]) || 0;
-
     if (!byNIK[nik]) {
       byNIK[nik] = {
-        nik: nik,
-        nama: r["Nama"] || "-",
-        jabatan: r["Jabatan"] || "-",
-        line: r["Line"] || "-",
-        area: r["Area"] || "-",
-        mesin: r["Mesin"] || "-",
-        skor: skor,
-        gradeTertinggi: gf
+        nik: nik, nama: r["Nama"] || "-", jabatan: r["Jabatan"] || "-",
+        line: r["Line"] || "-", area: r["Area"] || "-", mesin: r["Mesin"] || "-",
+        skor: skor, gradeTertinggi: gf
       };
     } else {
       const currentOrder = gradeOrder[byNIK[nik].gradeTertinggi];
       const newOrder = gradeOrder[gf];
-
       if (newOrder > currentOrder) {
         byNIK[nik].gradeTertinggi = gf;
         byNIK[nik].nama = r["Nama"] || byNIK[nik].nama;
@@ -1006,11 +1025,7 @@ function getTop10ForGrade(grade) {
       }
     }
   });
-
-  // Step 2: Filter hanya NIK dengan grade tertinggi == grade yang diminta
   const filtered = Object.values(byNIK).filter(item => item.gradeTertinggi === grade);
-
-  // Step 3: Sort by skor, ambil 10
   return filtered.sort((a, b) => b.skor - a.skor).slice(0, 10);
 }
 
@@ -1551,7 +1566,6 @@ async function onMesinChange() {
 
     kriteriaAktif = data.kriteria;
 
-    // Cari riwayat penilaian terakhir untuk employee + mesin + area yang sama
     let riwayatTerakhir = null;
     if (empId) {
       const matching = allData.report
@@ -1564,7 +1578,6 @@ async function onMesinChange() {
       if (matching.length > 0) riwayatTerakhir = matching[0];
     }
 
-    // Restore centang dari riwayat terakhir
     checkedKriteria = new Set();
     catatanKriteria = {};
     tanggalKriteria = {};
