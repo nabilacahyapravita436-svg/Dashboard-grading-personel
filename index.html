@@ -63,7 +63,7 @@ body{margin:0;width:100%;color:var(--ink);font-family:"Work Sans",sans-serif;bac
 .modal input:focus,.modal select:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
 .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:22px}
 .toast{position:fixed;top:20px;right:20px;background:#16a34a;color:#fff;padding:14px 20px;border-radius:10px;font-weight:600;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.2);z-index:2000;animation:slideIn .3s ease}
-.toast.error{background:#dc2626}
+.toast.error{background:#dc2626}.toast.info{background:#2563eb}
 @keyframes slideIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
 .grade-section{margin-bottom:16px;border:2px solid #e7edf5;border-radius:14px;overflow:hidden;background:#fff;transition:.25s}
 .grade-section.locked{opacity:.55;background:#f8fafc}
@@ -383,7 +383,7 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
       </section>
     </section>
 
-    <footer class="dashboard-footer">Competency Management System · Data dari Google Sheets</footer>
+    <footer class="dashboard-footer">Grading Operator by TSUP Dankos Farma · <em>Never stop learning.</em></footer>
   </main>
 </div>
 
@@ -505,7 +505,7 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
 /* ============================================================
    ⚠️ GANTI URL INI dengan URL Web App Apps Script Anda
    ============================================================ */
-const API_URL = "https://script.google.com/macros/s/AKfycbwvn5npR-AB77NdqaZ0G02rHIHQ6mSMCmcC-WgsJswbjtoI4nUrDNssqRXFt-C1WZnbfw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzEQCx2jhv7p6koMHLa22aAqNXQ5-qVDkTcjJYonWsLBxz0CTcaoz-ucIcH5f7HmtcKQg/exec";
 /* ============================================================ */
 
 const GRADE_LEVELS = {
@@ -531,9 +531,9 @@ let detailOperatorNIK = null;
 let currentRaportNIK = null;
 let _lastHash = "";
 
-function toast(msg, err) {
+function toast(msg, err, type) {
   const el = document.createElement("div");
-  el.className = "toast" + (err ? " error" : "");
+  el.className = "toast" + (err ? " error" : (type === "info" ? " info" : ""));
   el.textContent = msg;
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 2800);
@@ -1054,18 +1054,91 @@ function renderDetailOperator() {
   });
   const mesinList = Object.values(perMesin);
   const inisial = emp["Employee Name"].split(" ").map(n => n[0]).join("").slice(0,2).toUpperCase();
+
+  const gradeStats = { A: { lulus: 0, total: 0 }, B: { lulus: 0, total: 0 }, C: { lulus: 0, total: 0 }, D: { lulus: 0, total: 0 } };
+  mesinList.forEach(r => {
+    const detailRaw = r["Detail Kriteria"] || r["DETAIL KRITERIA"] || "";
+    let parsed = [];
+    try { parsed = typeof detailRaw === "string" ? JSON.parse(detailRaw) : detailRaw; } catch(e) { parsed = []; }
+    if (parsed && parsed.length > 0) {
+      parsed.forEach(d => {
+        const g = String(d.grade || "A").toUpperCase();
+        if (!gradeStats[g]) return;
+        gradeStats[g].total++;
+        if (d.terpenuhi) gradeStats[g].lulus++;
+      });
+    } else {
+      const totalItem = Number(r["Total Item"]) || 0;
+      const itemLulus = Number(r["Item Lulus"]) || 0;
+      const g = String(r["Grade Dinilai"] || "A").toUpperCase();
+      if (gradeStats[g]) { gradeStats[g].total += totalItem; gradeStats[g].lulus += itemLulus; }
+    }
+  });
+
+  const gradeColors = { A: "#f59e0b", B: "#3b82f6", C: "#22c55e", D: "#8b5cf6" };
+  const gradeLabels = { A: "Operator baru", B: "Start & stop mesin", C: "Problem & solusi", D: "Trainer" };
+
+  const progressHTML = ["A","B","C","D"].map(g => {
+    const s = gradeStats[g];
+    const pct = s.total > 0 ? Math.round(s.lulus / s.total * 100) : 0;
+    const color = gradeColors[g];
+    const empty = s.total === 0;
+    return `
+      <div style="display:grid;grid-template-columns:90px 1fr 120px;gap:14px;align-items:center;padding:10px 0">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:32px;height:32px;border-radius:8px;background:${empty ? '#e2e8f0' : color};display:grid;place-items:center;color:#fff;font-weight:700;font-size:14px">${g}</div>
+          <div style="font-size:11px;font-weight:700;color:#475569;line-height:1.2">Grade ${g}<br><span style="font-weight:500;color:#94a3b8;font-size:10px">${gradeLabels[g]}</span></div>
+        </div>
+        <div style="height:12px;background:#eef2f7;border-radius:999px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${empty ? '#cbd5e1' : color};border-radius:999px;transition:width .6s"></div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:20px;font-weight:700;color:${empty ? '#94a3b8' : color};line-height:1.1">${pct}%</div>
+          <div style="font-size:10px;color:#94a3b8;font-weight:600">${s.lulus}/${s.total} item</div>
+        </div>
+      </div>`;
+  }).join("");
+
+  let gradeFinal = "-";
+  const orderDesc = ["D","C","B","A"];
+  for (const g of orderDesc) {
+    const s = gradeStats[g];
+    if (s.total > 0 && s.lulus === s.total) { gradeFinal = g; break; }
+  }
+  const gradeFinalColor = gradeFinal !== "-" ? gradeColors[gradeFinal] : "#94a3b8";
+  const totalPenilaian = mesinList.length;
+  const rataSkor = mesinList.length ? Math.round(mesinList.reduce((s,m)=>s+(Number(m["Skor (%)"])||0),0)/mesinList.length) : 0;
+
   container.innerHTML = `
-    <div class="detail-operator-header">
+    <div class="detail-operator-header" style="align-items:flex-start">
       <div class="detail-op-avatar">${inisial}</div>
       <div class="detail-op-info">
         <h3>${escapeHtml(emp["Employee Name"])}</h3>
         <p>NIK: <strong>${escapeHtml(emp["Employee ID"])}</strong> · ${escapeHtml(emp["Job Title Name"]||"-")} · ${escapeHtml(emp["Organization Name"]||"-")}</p>
       </div>
       <div class="detail-op-stats">
-        <div class="detail-stat"><div class="detail-stat-label">Total Mesin</div><div class="detail-stat-value">${mesinList.length}</div></div>
-        <div class="detail-stat"><div class="detail-stat-label">Rata-rata Skor</div><div class="detail-stat-value">${mesinList.length ? Math.round(mesinList.reduce((s,m)=>s+(Number(m["Skor (%)"])||0),0)/mesinList.length) : 0}%</div></div>
+        <div class="detail-stat">
+          <div class="detail-stat-label">Total Mesin</div>
+          <div class="detail-stat-value">${totalPenilaian}</div>
+        </div>
+        <div class="detail-stat">
+          <div class="detail-stat-label">Rata-rata Skor</div>
+          <div class="detail-stat-value">${rataSkor}%</div>
+        </div>
+        <div class="detail-stat">
+          <div class="detail-stat-label">Grade Final</div>
+          <div class="detail-stat-value" style="color:${gradeFinalColor}">${gradeFinal}</div>
+        </div>
       </div>
     </div>
+
+    <div style="background:#fff;border:1px solid #e7edf5;border-radius:14px;padding:20px 24px;margin-bottom:18px">
+      <div style="font-size:12px;font-weight:700;color:#64748b;letter-spacing:.05em;text-transform:uppercase;margin-bottom:14px">
+        📊 Progress Kompetensi per Grade
+      </div>
+      ${progressHTML}
+    </div>
+
     ${mesinList.length === 0 
       ? `<div class="empty-row" style="text-align:center;padding:40px;color:#64748b">Belum ada penilaian untuk operator ini</div>`
       : `<div style="font-size:12px;font-weight:700;color:#64748b;letter-spacing:.05em;text-transform:uppercase;margin-bottom:10px">Mesin yang Dikuasai (${mesinList.length} unit)</div>
@@ -1302,7 +1375,14 @@ function onEmployeeChange() {
   const org = String(emp["Organization Name"] || "").trim();
   const areaSel = document.getElementById("form-area");
   const match = Object.keys(allData.mesin).find(a => org.toLowerCase().includes(a.toLowerCase()));
-  if (match) { areaSel.value = match; onAreaChange(); }
+  if (match) { 
+    areaSel.value = match; 
+    onAreaChange();
+  } else {
+    // Kalau employee diganti tapi area belum dipilih, cek riwayat mesin terakhir
+    const mesinSel = document.getElementById("form-mesin");
+    if (mesinSel.value) onMesinChange();
+  }
 }
 
 function resetFormPenuh() {
@@ -1336,11 +1416,16 @@ function onAreaChange() {
   onMesinChange();
 }
 
+/* ================================================================
+   ✅ PATCH: onMesinChange — auto-restore riwayat penilaian terakhir
+   ================================================================ */
 async function onMesinChange() {
   const area  = document.getElementById("form-area").value;
   const mesin = document.getElementById("form-mesin").value;
+  const empId = document.getElementById("form-employee").value;
   const wrapper = document.getElementById("form-kriteria-wrapper");
   const empty = document.getElementById("form-kriteria-empty");
+
   if (!area || !mesin) {
     wrapper.style.display = "none";
     empty.style.display = "none";
@@ -1349,15 +1434,19 @@ async function onMesinChange() {
     document.getElementById("form-btn-simpan").disabled = true;
     return;
   }
+
   document.getElementById("form-subtitle").textContent = `${area} · ${mesin}`;
   const body = document.getElementById("form-grade-sections");
   body.innerHTML = '<div style="text-align:center;padding:30px;color:#64748b">Memuat kriteria...</div>';
   wrapper.style.display = "block";
   empty.style.display = "none";
+
   try {
+    // 1. Load kriteria
     const url = API_URL + "?action=getKriteria&area=" + encodeURIComponent(area) + "&mesin=" + encodeURIComponent(mesin);
     const res = await fetch(url);
     const data = await res.json();
+
     if (!data.ok || !data.kriteria || !data.kriteria.length) {
       wrapper.style.display = "none";
       empty.style.display = "block";
@@ -1366,14 +1455,58 @@ async function onMesinChange() {
       document.getElementById("form-btn-simpan").disabled = true;
       return;
     }
+
     kriteriaAktif = data.kriteria;
+
+    // 2. Cari riwayat penilaian terakhir untuk employee + mesin + area yang sama
+    let riwayatTerakhir = null;
+    if (empId) {
+      const matching = allData.report
+        .filter(r =>
+          String(r["NIK"] || "").trim() === String(empId).trim() &&
+          String(r["Mesin"] || "").trim() === String(mesin).trim() &&
+          String(r["Area"] || "").trim() === String(area).trim()
+        )
+        .sort((a, b) => String(b["Timestamp"]).localeCompare(String(a["Timestamp"])));
+      if (matching.length > 0) riwayatTerakhir = matching[0];
+    }
+
+    // 3. Restore centang dari riwayat terakhir
     checkedKriteria = new Set();
     catatanKriteria = {};
     tanggalKriteria = {};
     gradeTerbuka = ["A"];
     gradeLulus = new Set();
+
+    if (riwayatTerakhir && riwayatTerakhir["Detail Kriteria"]) {
+      let detailLama = [];
+      try { detailLama = JSON.parse(riwayatTerakhir["Detail Kriteria"]); } catch(e) { detailLama = []; }
+
+      detailLama.forEach((d, idx) => {
+        // Cari kriteria dengan item + grade yang sama
+        const kriteriaMatch = kriteriaAktif.findIndex((k, i) =>
+          !checkedKriteria.has(i) && k.item === d.item && k.grade === d.grade
+        );
+        if (kriteriaMatch >= 0 && d.terpenuhi) {
+          checkedKriteria.add(kriteriaMatch);
+          if (d.tanggal) tanggalKriteria[kriteriaMatch] = d.tanggal;
+          if (d.catatan) catatanKriteria[kriteriaMatch] = d.catatan;
+        }
+      });
+
+      // Hitung ulang grade lulus berdasarkan centang
+      cekKelulusanGrade();
+
+      // Info ke user
+      if (checkedKriteria.size > 0) {
+        const gradeLama = [...gradeLulus].sort();
+        toast(`✓ Melanjutkan penilaian. Grade ${gradeLama.join(", ")} sudah lulus sebelumnya.`, false, "info");
+      }
+    }
+
     renderGradeSections();
     document.getElementById("form-btn-reset").style.display = "";
+
   } catch (e) {
     console.error(e);
     body.innerHTML = `<div style="text-align:center;padding:30px;color:#dc2626">Gagal memuat: ${e.message}</div>`;
