@@ -578,7 +578,7 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
     <label>Nama Lengkap</label><input id="u-nama" placeholder="Nama">
     <label>Username</label><input id="u-username" placeholder="username">
     <label>Password</label><input id="u-password" type="password" placeholder="password">
-    <label>Posisi</label><select id="u-posisi"><option>Admin</option><option>Trainer</option><option>Assessor</option><option>Supervisor</option></select>
+    <label>Posisi</label><select id="u-posisi"><option>Admin</option><option>Assessor</option><option>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('user-modal')">Batal</button>
       <button class="btn" onclick="saveUser()">Simpan</button>
@@ -2238,21 +2238,6 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden && cu
 setInterval(() => { if (!document.hidden && currentUser) checkForUpdates(); }, 60000);
 
 /* ========== EXPORT ========== */
-function exportExcel() {
-  const rows = [["Timestamp","NIK","Nama","Area","Mesin","Grade Dinilai","Total","Lulus","Skor","Grade Final","Assessor"]];
-  allData.report.forEach(r => rows.push([
-    r["Timestamp"], r["NIK"], r["Nama"], r["Area"], r["Mesin"],
-    r["Grade Dinilai"], r["Total Item"], r["Item Lulus"], r["Skor (%)"], r["Grade Final"], r["Assessor"]
-  ]));
-  const csv = rows.map(r => r.map(c => `"${String(c||"").replace(/"/g,'""')}"`).join(",")).join("\n");
-  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url; a.download = `competency-${new Date().toISOString().slice(0,10)}.csv`; a.click();
-  URL.revokeObjectURL(url);
-  toast("Excel diunduh");
-}
-
 function exportPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: "landscape" });
