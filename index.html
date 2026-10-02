@@ -136,6 +136,9 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
 .log-add{background:#dcfce7;color:#15803d}
 .log-edit{background:#dbeafe;color:#1d4ed8}
 .log-delete{background:#fee2e2;color:#b91c1c}
+.log-login{background:#e0e7ff;color:#4338ca}
+.log-logout{background:#f3e8ff;color:#7c3aed}
+.log-system{background:#f1f5f9;color:#475569}
 @media(max-width:1120px){.kpi-grid{grid-template-columns:repeat(3,1fr)}.machine-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:820px){.sidebar{width:76px;padding:20px 10px}.brand{justify-content:center;padding:0 0 24px}.brand-text,.menu-caption,.nav-text{display:none}.nav-item{justify-content:center;padding:12px 6px}.workspace{padding:25px 22px 35px}.content-grid{grid-template-columns:1fr}}
 @media(max-width:620px){.dashboard-shell{display:block}.sidebar{width:100%;min-height:auto;position:static;padding:12px 14px;flex-direction:row;align-items:center;gap:10px}.brand{padding:0;border:0}.nav-list{display:flex;flex:1;justify-content:space-between;gap:4px}.nav-item{width:auto;flex:1}.workspace{padding:22px 15px 30px}.kpi-grid{grid-template-columns:repeat(2,1fr)}.machine-grid{grid-template-columns:1fr}}
@@ -171,7 +174,7 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
       <button type="button" class="nav-item" data-view="matrix"><span class="nav-icon">📋</span><span class="nav-text">Matrix</span></button>
       <button type="button" class="nav-item" data-view="history"><span class="nav-icon">📈</span><span class="nav-text">History</span></button>
       <button type="button" class="nav-item" data-view="kriteria"><span class="nav-icon">📝</span><span class="nav-text">Form Kriteria</span></button>
-      <button type="button" class="nav-item" data-view="log" data-admin-only><span class="nav-icon">📜</span><span class="nav-text">Log Kriteria</span></button>
+      <button type="button" class="nav-item" data-view="audit" data-admin-only><span class="nav-icon">🔍</span><span class="nav-text">Audit Trail</span></button>
       <button type="button" class="nav-item" data-view="user" data-admin-only><span class="nav-icon">🔐</span><span class="nav-text">User</span></button>
     </nav>
   </aside>
@@ -206,9 +209,7 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
         <div style="padding:20px 21px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
           <h2 class="panel-heading" style="padding:0">📊 Top 5 Alat — Paling Banyak Dikuasai</h2>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <select id="alat-filter-area" class="field" style="min-height:36px;font-size:12px;padding:0 10px;width:auto" onchange="renderGrafikAlat()">
-              <option value="">Semua Area</option>
-            </select>
+            <select id="alat-filter-area" class="field" style="min-height:36px;font-size:12px;padding:0 10px;width:auto" onchange="renderGrafikAlat()"><option value="">Semua Area</option></select>
             <select id="alat-filter-grade" class="field" style="min-height:36px;font-size:12px;padding:0 10px;width:auto" onchange="renderGrafikAlat()">
               <option value="">Semua Grade</option>
               <option value="A">Grade A</option>
@@ -282,18 +283,8 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
     <!-- EMPLOYEE VIEW -->
     <section id="employee-view" class="view">
       <section class="panel filter-bar">
-        <div class="filter-group">
-          <label class="filter-label">🔍 Cari</label>
-          <input id="personel-search" class="field" type="search" placeholder="ID, nama, jabatan..." oninput="renderEmployee()">
-        </div>
-        <div class="filter-group">
-          <label class="filter-label">Status</label>
-          <select id="personel-status-filter" class="field" onchange="renderEmployee()">
-            <option value="">Semua</option>
-            <option value="Aktif">Aktif</option>
-            <option value="Non Aktif">Non Aktif</option>
-          </select>
-        </div>
+        <div class="filter-group"><label class="filter-label">🔍 Cari</label><input id="personel-search" class="field" type="search" placeholder="ID, nama, jabatan..." oninput="renderEmployee()"></div>
+        <div class="filter-group"><label class="filter-label">Status</label><select id="personel-status-filter" class="field" onchange="renderEmployee()"><option value="">Semua</option><option value="Aktif">Aktif</option><option value="Non Aktif">Non Aktif</option></select></div>
         <button class="btn" data-admin-only onclick="openPersonelModal()" style="margin-bottom:0">+ Tambah Personel</button>
       </section>
       <section class="panel table-panel">
@@ -311,22 +302,11 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
     <section id="raport-view" class="view">
       <section class="panel search-raport-box">
         <div style="display:grid;grid-template-columns:1fr 200px 200px;gap:14px;align-items:end">
-          <div class="filter-group">
-            <label class="filter-label">🔍 Cari Nama / NIK</label>
-            <input id="raport-search" class="field" type="search" placeholder="Ketik nama atau NIK..." oninput="cariKaryawanRaport()">
-            <div id="raport-search-suggest" style="position:relative"></div>
-          </div>
-          <div class="filter-group">
-            <label class="filter-label">Filter Area</label>
-            <select id="raport-area-filter" class="field" onchange="renderRaport()"><option value="">Semua Area</option></select>
-          </div>
-          <div class="filter-group">
-            <label class="filter-label">Filter Mesin</label>
-            <select id="raport-mesin-filter" class="field" onchange="renderRaport()"><option value="">Semua Mesin</option></select>
-          </div>
+          <div class="filter-group"><label class="filter-label">🔍 Cari Nama / NIK</label><input id="raport-search" class="field" type="search" placeholder="Ketik nama atau NIK..." oninput="cariKaryawanRaport()"><div id="raport-search-suggest" style="position:relative"></div></div>
+          <div class="filter-group"><label class="filter-label">Filter Area</label><select id="raport-area-filter" class="field" onchange="renderRaport()"><option value="">Semua Area</option></select></div>
+          <div class="filter-group"><label class="filter-label">Filter Mesin</label><select id="raport-mesin-filter" class="field" onchange="renderRaport()"><option value="">Semua Mesin</option></select></div>
         </div>
       </section>
-
       <section class="panel" style="padding:22px">
         <div id="raport-header" style="margin-bottom:20px"></div>
         <div id="raport-content"></div>
@@ -335,15 +315,53 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
 
     <!-- MACHINE VIEW -->
     <section id="machine-view" class="view">
-      <section class="panel table-panel">
-        <div class="table-title-row"><h2 class="table-title">Machine Competency — Agregasi dari Raport</h2></div>
-        <div class="table-scroll">
-          <table>
-            <thead><tr><th>No</th><th>Mesin</th><th>Area</th><th>A</th><th>B</th><th>C</th><th>D</th><th>Total</th></tr></thead>
-            <tbody id="machine-table-body"></tbody>
-          </table>
+      <section class="panel filter-bar" style="align-items:center;justify-content:space-between">
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" id="machine-tab-competency" onclick="switchMachineTab('competency')" type="button" style="background:#2563eb;color:#fff">📊 Kompetensi</button>
+          <button class="btn" id="machine-tab-manage" onclick="switchMachineTab('manage')" type="button" style="background:#eef2f7;color:#334155" data-admin-only>🛠️ Kelola Mesin & Area</button>
         </div>
       </section>
+
+      <div id="machine-sub-competency">
+        <section class="panel table-panel">
+          <div class="table-title-row"><h2 class="table-title">Machine Competency — Agregasi dari Raport</h2></div>
+          <div class="table-scroll">
+            <table>
+              <thead><tr><th>No</th><th>Mesin</th><th>Area</th><th>A</th><th>B</th><th>C</th><th>D</th><th>Total</th></tr></thead>
+              <tbody id="machine-table-body"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <div id="machine-sub-manage" style="display:none">
+        <div class="content-grid" style="grid-template-columns:1fr 1fr;margin-bottom:20px">
+          <section class="panel table-panel">
+            <div class="table-title-row">
+              <h2 class="table-title">🗺️ Master Area</h2>
+              <button class="btn" onclick="openAreaModal()">+ Tambah Area</button>
+            </div>
+            <div class="table-scroll">
+              <table style="min-width:auto">
+                <thead><tr><th>No</th><th>Area</th><th>Sheet Form</th><th style="text-align:right">Aksi</th></tr></thead>
+                <tbody id="area-manage-body"><tr><td colspan="4" class="empty-row">Memuat...</td></tr></tbody>
+              </table>
+            </div>
+          </section>
+          <section class="panel table-panel">
+            <div class="table-title-row">
+              <h2 class="table-title">⚙️ Master Mesin</h2>
+              <button class="btn" onclick="openMesinModal()" id="btn-tambah-mesin" disabled>+ Tambah Mesin</button>
+            </div>
+            <div class="table-scroll">
+              <table style="min-width:auto">
+                <thead><tr><th>No</th><th>Mesin</th><th>Area</th><th style="text-align:right">Aksi</th></tr></thead>
+                <tbody id="mesin-manage-body"><tr><td colspan="4" class="empty-row">Memuat...</td></tr></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </div>
     </section>
 
     <!-- MATRIX VIEW -->
@@ -376,19 +394,7 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
     <!-- KRITERIA VIEW -->
     <section id="kriteria-view" class="view">
       <section class="panel filter-bar">
-        <div class="filter-group">
-          <label class="filter-label">Pilih Area</label>
-          <select id="kriteria-area-filter" class="field" onchange="loadKriteriaAdmin()">
-            <option value="">— Pilih Area —</option>
-            <option value="Granulasi">Granulasi</option>
-            <option value="Mixing">Mixing</option>
-            <option value="Tabletting">Tabletting</option>
-            <option value="Coating">Coating</option>
-            <option value="Filling">Filling</option>
-            <option value="Kemas Primer">Kemas Primer</option>
-            <option value="Kemas Sekunder">Kemas Sekunder</option>
-          </select>
-        </div>
+        <div class="filter-group"><label class="filter-label">Pilih Area</label><select id="kriteria-area-filter" class="field" onchange="loadKriteriaAdmin()"><option value="">— Pilih Area —</option></select></div>
         <button class="btn" onclick="openKriteriaModal()" id="btn-tambah-kriteria" disabled style="margin-bottom:0">+ Tambah Item</button>
       </section>
       <section class="panel table-panel">
@@ -399,27 +405,39 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
         <div class="table-scroll">
           <table>
             <thead><tr><th>No</th><th>Grade</th><th>Kategori</th><th>Item Penilaian</th><th style="text-align:right">Aksi</th></tr></thead>
-            <tbody id="kriteria-body">
-              <tr><td colspan="5" class="empty-row">Pilih area di atas untuk melihat item penilaian</td></tr>
-            </tbody>
+            <tbody id="kriteria-body"><tr><td colspan="5" class="empty-row">Pilih area di atas untuk melihat item penilaian</td></tr></tbody>
           </table>
         </div>
       </section>
     </section>
 
-    <!-- LOG KRITERIA VIEW -->
-    <section id="log-view" class="view">
+    <!-- AUDIT VIEW -->
+    <section id="audit-view" class="view">
+      <section class="panel filter-bar">
+        <div class="filter-group">
+          <label class="filter-label">🔍 Cari User / Aksi / Detail</label>
+          <input id="audit-search" class="field" type="search" placeholder="Ketik untuk filter..." oninput="renderAuditLog()">
+        </div>
+        <div class="filter-group" style="flex:0 0 220px">
+          <label class="filter-label">Filter Kategori</label>
+          <select id="audit-filter-kategori" class="field" onchange="renderAuditLog()">
+            <option value="">Semua Kategori</option>
+            <option value="PERSONEL">👥 Personel</option>
+            <option value="KRITERIA">📝 Kriteria</option>
+            <option value="MESIN_AREA">⚙️ Mesin / Area</option>
+          </select>
+        </div>
+        <button class="btn btn-secondary" onclick="loadAuditLog()">🔄 Refresh</button>
+      </section>
       <section class="panel table-panel">
         <div class="table-title-row">
-          <h2 class="table-title">Log Perubahan Kriteria</h2>
-          <button class="btn btn-secondary" onclick="loadLogKriteria()">🔄 Refresh Log</button>
+          <h2 class="table-title">Audit Trail — Perubahan Data</h2>
+          <div style="font-size:12px;color:#64748b" id="audit-info">Memuat...</div>
         </div>
         <div class="table-scroll">
           <table>
-            <thead><tr><th>Waktu</th><th>User</th><th>Aksi</th><th>Area</th><th>Item Baru</th><th>Item Lama</th></tr></thead>
-            <tbody id="log-body">
-              <tr><td colspan="6" class="empty-row">Klik 🔄 Refresh Log untuk memuat data</td></tr>
-            </tbody>
+            <thead><tr><th>Waktu</th><th>User</th><th>Username</th><th>Aksi</th><th>Kategori</th><th>Detail</th></tr></thead>
+            <tbody id="audit-body"><tr><td colspan="6" class="empty-row">Klik 🔄 Refresh untuk memuat data</td></tr></tbody>
           </table>
         </div>
       </section>
@@ -455,24 +473,15 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
       </div>
       <button onclick="closeModal('form-modal')" style="background:#f1f5f9;border:0;width:34px;height:34px;border-radius:9px;cursor:pointer;font-size:16px;color:#64748b">✕</button>
     </div>
-
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px">
       <div style="background:#f8fafc;border:1px solid #e7edf5;border-radius:12px;padding:16px">
         <label style="font-size:11px;font-weight:700;color:#475569;letter-spacing:.04em">NAMA KARYAWAN</label>
-        <select id="form-employee" class="field" style="margin:6px 0 12px" onchange="onEmployeeChange()">
-          <option value="">— Pilih Karyawan —</option>
-        </select>
+        <select id="form-employee" class="field" style="margin:6px 0 12px" onchange="onEmployeeChange()"><option value="">— Pilih Karyawan —</option></select>
         <label style="font-size:11px;font-weight:700;color:#475569;letter-spacing:.04em">NIK</label>
         <input id="form-nik" class="field" style="margin:6px 0 12px;background:#f1f5f9" readonly>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div>
-            <label style="font-size:11px;font-weight:700;color:#475569;letter-spacing:.04em">TANGGAL MASUK</label>
-            <input id="form-tgl-masuk" class="field" style="margin:6px 0 0;background:#f1f5f9" readonly>
-          </div>
-          <div>
-            <label style="font-size:11px;font-weight:700;color:#475569;letter-spacing:.04em">JABATAN</label>
-            <input id="form-jabatan" class="field" style="margin:6px 0 0;background:#f1f5f9" readonly>
-          </div>
+          <div><label style="font-size:11px;font-weight:700;color:#475569;letter-spacing:.04em">TANGGAL MASUK</label><input id="form-tgl-masuk" class="field" style="margin:6px 0 0;background:#f1f5f9" readonly></div>
+          <div><label style="font-size:11px;font-weight:700;color:#475569;letter-spacing:.04em">JABATAN</label><input id="form-jabatan" class="field" style="margin:6px 0 0;background:#f1f5f9" readonly></div>
         </div>
       </div>
       <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:16px">
@@ -481,29 +490,15 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
         <label style="font-size:11px;font-weight:700;color:#475569;letter-spacing:.04em">POSISI</label>
         <input id="form-assessor-jabatan" class="field" style="margin:6px 0 12px;background:#fff" readonly>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div>
-            <label style="font-size:11px;font-weight:700;color:#475569;letter-spacing:.04em">AREA</label>
-            <select id="form-area" class="field" style="margin:6px 0 0" onchange="onAreaChange()">
-              <option value="">— Pilih Area —</option>
-            </select>
-          </div>
-          <div>
-            <label style="font-size:11px;font-weight:700;color:#475569;letter-spacing:.04em">MESIN</label>
-            <select id="form-mesin" class="field" style="margin:6px 0 0" onchange="onMesinChange()">
-              <option value="">— Pilih Mesin —</option>
-            </select>
-          </div>
+          <div><label style="font-size:11px;font-weight:700;color:#475569;letter-spacing:.04em">AREA</label><select id="form-area" class="field" style="margin:6px 0 0" onchange="onAreaChange()"><option value="">— Pilih Area —</option></select></div>
+          <div><label style="font-size:11px;font-weight:700;color:#475569;letter-spacing:.04em">MESIN</label><select id="form-mesin" class="field" style="margin:6px 0 0" onchange="onMesinChange()"><option value="">— Pilih Mesin —</option></select></div>
         </div>
       </div>
     </div>
-
     <div id="form-kriteria-wrapper" style="display:none">
       <div id="form-grade-sections"></div>
       <div class="grade-summary-final" style="margin-top:18px;padding:20px;border-radius:14px;background:linear-gradient(135deg,#f8fafc,#eff6ff);border:1px solid #e7edf5;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
-        <div>
-          <div style="font-size:11px;color:#64748b;font-weight:700;letter-spacing:.05em">GRADE FINAL</div>
-          <div style="font-size:13px;color:#64748b;margin-top:4px" id="form-progress-text">Grade tertinggi yang lulus 100%</div>
-        </div>
+        <div><div style="font-size:11px;color:#64748b;font-weight:700;letter-spacing:.05em">GRADE FINAL</div><div style="font-size:13px;color:#64748b;margin-top:4px" id="form-progress-text">Grade tertinggi yang lulus 100%</div></div>
         <div id="form-grade-final-box" style="text-align:center;padding:14px 26px;border-radius:12px;border:2px solid #e7edf5;background:#fff;min-width:150px">
           <div style="font-size:10px;font-weight:700;color:#64748b;letter-spacing:.05em">HASIL</div>
           <div id="form-grade-final-letter" style="font-size:40px;font-weight:700;line-height:1;margin:4px 0;color:#64748b">-</div>
@@ -511,11 +506,9 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
         </div>
       </div>
     </div>
-
     <div id="form-kriteria-empty" style="display:none;margin-top:16px;padding:30px;text-align:center;background:#f8fafc;border-radius:12px;color:#64748b;font-size:13px">
       ⚠️ Belum ada kriteria untuk <strong>Area + Mesin</strong> ini.<br>Tambahkan dulu di menu Form Kriteria.
     </div>
-
     <div class="modal-actions" style="margin-top:22px">
       <button class="btn btn-secondary" onclick="closeModal('form-modal')">Batal</button>
       <button class="btn btn-secondary" onclick="resetProgressive()" id="form-btn-reset" style="display:none">↻ Reset</button>
@@ -524,14 +517,13 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
   </div>
 </div>
 
-<!-- MODAL: TAMBAH/EDIT KRITERIA -->
+<!-- MODAL: KRITERIA -->
 <div id="kriteria-modal" class="modal-backdrop">
   <div class="modal">
     <h3 id="kriteria-modal-title">Tambah Item Penilaian</h3>
     <input type="hidden" id="k-edit-mode" value="">
     <input type="hidden" id="k-row-index" value="">
-    <label>Area</label>
-    <input id="k-area-display" class="field" style="background:#f1f5f9" readonly>
+    <label>Area</label><input id="k-area-display" class="field" style="background:#f1f5f9" readonly>
     <label>Grade</label>
     <select id="k-grade">
       <option value="A">A — Operator baru</option>
@@ -539,8 +531,7 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
       <option value="C">C — Identifikasi masalah dan solusi</option>
       <option value="D">D — Trainer</option>
     </select>
-    <label>Kategori</label>
-    <input id="k-kategori" placeholder="K atau -">
+    <label>Kategori</label><input id="k-kategori" placeholder="K atau -">
     <label>Item Penilaian</label>
     <textarea id="k-item" placeholder="Deskripsi item penilaian..."></textarea>
     <div class="modal-actions">
@@ -550,7 +541,7 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
   </div>
 </div>
 
-<!-- MODAL: TAMBAH/EDIT PERSONEL -->
+<!-- MODAL: PERSONEL -->
 <div id="personel-modal" class="modal-backdrop">
   <div class="modal">
     <h3 id="personel-modal-title">Tambah Personel</h3>
@@ -570,7 +561,7 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
   </div>
 </div>
 
-<!-- MODAL: TAMBAH USER -->
+<!-- MODAL: USER -->
 <div id="user-modal" class="modal-backdrop">
   <div class="modal">
     <h3>Tambah User Login</h3>
@@ -585,23 +576,46 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
   </div>
 </div>
 
-<script>
-/* ============================================================
-   ⚠️ GANTI URL INI dengan URL Web App Apps Script Anda
-   ============================================================ */
-const API_URL = "https://script.google.com/macros/s/AKfycbzhQtfg64In4Ro_3bSpSEfpd8lRgKfYfb2wUWF2E3pPU2k3o6WmxJrBwyNviZCFiP7Enw/exec";
-/* ============================================================ */
+<!-- MODAL: AREA -->
+<div id="area-modal" class="modal-backdrop">
+  <div class="modal">
+    <h3>Tambah Area Baru</h3>
+    <p style="font-size:13px;color:#64748b;margin:0 0 12px">Area baru akan otomatis membuat sheet <code>Form [NamaArea]</code>.</p>
+    <label>Nama Area</label>
+    <input id="a-nama" placeholder="Contoh: Packaging, QC, Warehouse...">
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('area-modal')">Batal</button>
+      <button class="btn" onclick="saveArea()">Simpan</button>
+    </div>
+  </div>
+</div>
 
-const GRADE_LEVELS = {
-  A: "Operator baru",
-  B: "Start dan stop mesin",
-  C: "Identifikasi masalah dan solusi",
-  D: "Trainer"
-};
+<!-- MODAL: MESIN -->
+<div id="mesin-modal" class="modal-backdrop">
+  <div class="modal">
+    <h3>Tambah Mesin Baru</h3>
+    <label>Pilih Area</label>
+    <select id="m-area"><option value="">— Pilih Area —</option></select>
+    <label>Nama Mesin</label>
+    <input id="m-nama" placeholder="Contoh: Mesin Filling 2">
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('mesin-modal')">Batal</button>
+      <button class="btn" onclick="saveMesin()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbz9yCgbGLqsCKWfeTtfGynNbq-k36ikDV1qKhPKG7NFWGhZ8JFwolAu2V4nRh3YzDJkeg/exec";
+
+const GRADE_LEVELS = { A: "Operator baru", B: "Start dan stop mesin", C: "Identifikasi masalah dan solusi", D: "Trainer" };
 const GRADE_COLORS = { A: "#f59e0b", B: "#3b82f6", C: "#22c55e", D: "#8b5cf6" };
 
 let currentUser = null;
 let allData = { personel: [], report: [], mesin: {} };
+let areaList = [];
+let mesinList = [];
+let auditLogCache = [];
 let charts = {};
 let kriteriaAktif = [];
 let checkedKriteria = new Set();
@@ -624,13 +638,12 @@ function toast(msg, err, type) {
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 2800);
 }
-function escapeHtml(v) {
-  return String(v || "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]));
-}
+function escapeHtml(v) { return String(v || "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c])); }
 function gradeClass(g) { return "grade-" + String(g || "A").toLowerCase(); }
 function safeParseJSON(str) { try { return JSON.parse(str); } catch(e) { return []; } }
+function getUserTag() { return currentUser ? { user: currentUser.nama, username: currentUser.username } : { user: "unknown", username: "unknown" }; }
 
-/* ========== LOGIN ========== */
+/* LOGIN */
 document.getElementById("login-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const btn = document.getElementById("login-btn");
@@ -639,20 +652,11 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
   btn.disabled = true; btn.textContent = "Memproses...";
   try {
     const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({
-        action: "login",
-        username: document.getElementById("login-username").value.trim(),
-        password: document.getElementById("login-password").value
-      })
+      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action: "login", username: document.getElementById("login-username").value.trim(), password: document.getElementById("login-password").value })
     });
     const data = await res.json();
-    if (!data.ok) {
-      err.textContent = data.message || "Login gagal";
-      btn.disabled = false; btn.textContent = "Masuk";
-      return;
-    }
+    if (!data.ok) { err.textContent = data.message || "Login gagal"; btn.disabled = false; btn.textContent = "Masuk"; return; }
     currentUser = data.user;
     sessionStorage.setItem("user", JSON.stringify(currentUser));
     masukDashboard();
@@ -666,47 +670,47 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
 function masukDashboard() {
   document.getElementById("login-screen").style.display = "none";
   document.getElementById("dashboard-shell").style.display = "flex";
-  const roleLabel = currentUser.role === "admin" ? "Admin" : "Assessor";
-  document.getElementById("profile-chip").textContent = `👤 ${currentUser.nama} (${roleLabel})`;
+  document.getElementById("profile-chip").textContent = `👤 ${currentUser.nama} (${currentUser.role === "admin" ? "Admin" : "Assessor"})`;
   applyPermissions();
   muatSemuaData();
 }
-
 function applyPermissions() {
   const isAdmin = currentUser && currentUser.role === "admin";
   document.querySelectorAll("[data-admin-only]").forEach(el => el.style.display = isAdmin ? "" : "none");
 }
-function logout() { sessionStorage.removeItem("user"); location.reload(); }
+async function logout() {
+  const tag = getUserTag();
+  try {
+    await fetch(API_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "logout", data: tag }) });
+  } catch(e) {}
+  sessionStorage.removeItem("user");
+  location.reload();
+}
 
-/* ========== LOAD DATA ========== */
+/* LOAD DATA */
 async function muatSemuaData() {
   try {
-    const res = await fetch(API_URL + "?action=getAll");
-    const data = await res.json();
+    const [resAll, resArea] = await Promise.all([fetch(API_URL + "?action=getAll"), fetch(API_URL + "?action=getMasterArea")]);
+    const data = await resAll.json();
+    const dataArea = await resArea.json();
     if (!data.ok) throw new Error(data.message);
     allData.personel = data.personel || [];
     allData.report = data.report || [];
     allData.mesin = data.mesin || {};
+    areaList = (dataArea.area || []);
+    mesinList = [];
+    Object.entries(allData.mesin).forEach(([area, arr]) => arr.forEach(m => mesinList.push({ area, mesin: m })));
     isiFilterArea();
     isiFilterGrafikAlat();
+    isiAreaDropdown();
     renderAll();
     renderTop10();
     renderGrafikAlat();
     if (detailOperatorNIK) renderDetailOperator();
     _lastHash = hashData();
-  } catch (e) {
-    console.error(e);
-    toast("Gagal memuat data: " + e.message, true);
-  }
+  } catch (e) { console.error(e); toast("Gagal memuat data: " + e.message, true); }
 }
-
-function hashData() {
-  return JSON.stringify({
-    p: allData.personel.length,
-    r: allData.report.length,
-    m: Object.keys(allData.mesin).length
-  });
-}
+function hashData() { return JSON.stringify({ p: allData.personel.length, r: allData.report.length, m: Object.keys(allData.mesin).length }); }
 
 function isiFilterArea() {
   const areas = Object.keys(allData.mesin || {});
@@ -728,8 +732,16 @@ function isiMesinRaportFilter() {
   else Object.values(allData.mesin).forEach(arr => arr.forEach(m => { if (!listMesin.includes(m)) listMesin.push(m); }));
   sel.innerHTML = '<option value="">Semua Mesin</option>' + listMesin.map(m => `<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`).join("");
 }
+function isiAreaDropdown() {
+  const selK = document.getElementById("kriteria-area-filter");
+  if (selK) selK.innerHTML = '<option value="">— Pilih Area —</option>' + areaList.map(a => `<option value="${escapeHtml(a.area)}">${escapeHtml(a.area)}</option>`).join("");
+  const selM = document.getElementById("m-area");
+  if (selM) selM.innerHTML = '<option value="">— Pilih Area —</option>' + areaList.map(a => `<option value="${escapeHtml(a.area)}">${escapeHtml(a.area)}</option>`).join("");
+  const selF = document.getElementById("form-area");
+  if (selF) selF.innerHTML = '<option value="">— Pilih Area —</option>' + Object.keys(allData.mesin).map(a => `<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`).join("");
+}
 
-/* ========== RENDER ALL ========== */
+/* RENDER ALL */
 function renderAll() {
   const rows = allData.report;
   renderKpi(rows);
@@ -754,14 +766,10 @@ function renderKpi(rows) {
     const nik = String(r["NIK"] || "").trim();
     const gf = String(r["Grade Final"] || "").toUpperCase();
     if (!nik || !gradeOrder[gf]) return;
-    if (!gradePerNIK[nik] || gradeOrder[gf] > gradeOrder[gradePerNIK[nik]]) {
-      gradePerNIK[nik] = gf;
-    }
+    if (!gradePerNIK[nik] || gradeOrder[gf] > gradeOrder[gradePerNIK[nik]]) gradePerNIK[nik] = gf;
   });
-  const countGradeA = Object.values(gradePerNIK).filter(g => g === "A").length;
-  const countGradeD = Object.values(gradePerNIK).filter(g => g === "D").length;
-  document.getElementById("kpi-grade-a-value").textContent = countGradeA;
-  document.getElementById("kpi-grade-d-value").textContent = countGradeD;
+  document.getElementById("kpi-grade-a-value").textContent = Object.values(gradePerNIK).filter(g => g === "A").length;
+  document.getElementById("kpi-grade-d-value").textContent = Object.values(gradePerNIK).filter(g => g === "D").length;
   const mesinSet = new Set();
   Object.values(allData.mesin || {}).forEach(arr => arr.forEach(m => mesinSet.add(m)));
   document.getElementById("kpi-gap-value").textContent = mesinSet.size;
@@ -774,16 +782,13 @@ function renderDistribusi(rows) {
     const nik = String(r["NIK"] || "").trim();
     const gf = String(r["Grade Final"] || "").toUpperCase();
     if (!nik || !gradeOrder[gf]) return;
-    if (!gradePerNIK[nik] || gradeOrder[gf] > gradeOrder[gradePerNIK[nik]]) {
-      gradePerNIK[nik] = gf;
-    }
+    if (!gradePerNIK[nik] || gradeOrder[gf] > gradeOrder[gradePerNIK[nik]]) gradePerNIK[nik] = gf;
   });
   const dist = { A: 0, B: 0, C: 0, D: 0 };
   Object.values(gradePerNIK).forEach(g => { dist[g]++; });
   const total = Object.values(dist).reduce((a, b) => a + b, 0) || 1;
   ["A","B","C","D"].forEach(g => {
-    const c = dist[g];
-    const p = Math.round(c / total * 100);
+    const p = Math.round(dist[g] / total * 100);
     document.getElementById("bar-" + g.toLowerCase()).style.width = p + "%";
     document.getElementById("pct-" + g.toLowerCase()).textContent = p + "%";
   });
@@ -800,15 +805,9 @@ function renderOverview(rows) {
     const gf = String(r["Grade Final"] || "").toUpperCase();
     if (!gf || gf === "-" || !gradeOrder[gf]) return;
     const key = nik + "||" + area + "||" + mesin;
-    if (!byKey[key]) {
-      byKey[key] = { area, mesin, gradeTertinggi: gf, nik };
-    } else {
-      if (gradeOrder[gf] > gradeOrder[byKey[key].gradeTertinggi]) {
-        byKey[key].gradeTertinggi = gf;
-      }
-    }
+    if (!byKey[key]) byKey[key] = { area, mesin, gradeTertinggi: gf, nik };
+    else if (gradeOrder[gf] > gradeOrder[byKey[key].gradeTertinggi]) byKey[key].gradeTertinggi = gf;
   });
-
   const groups = {};
   Object.values(byKey).forEach(item => {
     const { area, mesin, gradeTertinggi } = item;
@@ -816,7 +815,6 @@ function renderOverview(rows) {
     if (!groups[area][mesin]) groups[area][mesin] = { A:0, B:0, C:0, D:0 };
     groups[area][mesin][gradeTertinggi]++;
   });
-
   const html = Object.entries(groups).map(([area, mesins]) => `
     <div class="process-group">
       <div class="process-title"><strong>${escapeHtml(area)}</strong><span>${Object.keys(mesins).length} mesin</span></div>
@@ -892,31 +890,19 @@ function renderMachine(rows) {
     const gf = String(r["Grade Final"] || "").toUpperCase();
     if (!gf || gf === "-" || !gradeOrder[gf]) return;
     const key = nik + "||" + area + "||" + mesin;
-    if (!byKey[key]) {
-      byKey[key] = { area, mesin, gradeTertinggi: gf, nik };
-    } else {
-      if (gradeOrder[gf] > gradeOrder[byKey[key].gradeTertinggi]) {
-        byKey[key].gradeTertinggi = gf;
-      }
-    }
+    if (!byKey[key]) byKey[key] = { area, mesin, gradeTertinggi: gf, nik };
+    else if (gradeOrder[gf] > gradeOrder[byKey[key].gradeTertinggi]) byKey[key].gradeTertinggi = gf;
   });
-
   const groups = {};
   Object.values(byKey).forEach(item => {
     const key = item.area + "|" + item.mesin;
-    if (!groups[key]) {
-      groups[key] = { area: item.area, mesin: item.mesin, A:0, B:0, C:0, D:0, total:0 };
-    }
+    if (!groups[key]) groups[key] = { area: item.area, mesin: item.mesin, A:0, B:0, C:0, D:0, total:0 };
     groups[key][item.gradeTertinggi]++;
     groups[key].total++;
   });
-
   const tb = document.getElementById("machine-table-body");
   const list = Object.values(groups);
-  if (!list.length) {
-    tb.innerHTML = '<tr><td colspan="8" class="empty-row">Belum ada data.</td></tr>';
-    return;
-  }
+  if (!list.length) { tb.innerHTML = '<tr><td colspan="8" class="empty-row">Belum ada data.</td></tr>'; return; }
   tb.innerHTML = list.map((g, i) => `
     <tr>
       <td>${i+1}</td>
@@ -969,13 +955,10 @@ function renderCharts(rows) {
     const nik = String(r["NIK"] || "").trim();
     const gf = String(r["Grade Final"] || "").toUpperCase();
     if (!nik || !gradeOrder[gf]) return;
-    if (!gradePerNIK[nik] || gradeOrder[gf] > gradeOrder[gradePerNIK[nik]]) {
-      gradePerNIK[nik] = gf;
-    }
+    if (!gradePerNIK[nik] || gradeOrder[gf] > gradeOrder[gradePerNIK[nik]]) gradePerNIK[nik] = gf;
   });
   const dist = { A: 0, B: 0, C: 0, D: 0 };
   Object.values(gradePerNIK).forEach(g => { dist[g]++; });
-
   if (charts.dist) charts.dist.destroy();
   const c1 = document.getElementById("chart-distribution");
   if (c1) charts.dist = new Chart(c1, {
@@ -983,21 +966,18 @@ function renderCharts(rows) {
     data: { labels:["A","B","C","D"], datasets:[{ data:[dist.A,dist.B,dist.C,dist.D], backgroundColor:["#f59e0b","#3b82f6","#22c55e","#8b5cf6"] }] },
     options: { plugins: { legend: { position: "bottom" } }, responsive: true }
   });
-
   const total = Object.values(dist).reduce((a, b) => a + b, 0);
-  const unikA = dist.A;
-  const belum = total - unikA;
-
+  const belum = total - dist.A;
   if (charts.trend) charts.trend.destroy();
   const c2 = document.getElementById("chart-trend");
   if (c2) charts.trend = new Chart(c2, {
     type: "bar",
-    data: { labels:["Grade A","B/C/D"], datasets:[{ label:"Jumlah Personel", data:[unikA, belum], backgroundColor:["#16a34a","#dc2626"] }] },
+    data: { labels:["Grade A","B/C/D"], datasets:[{ label:"Jumlah Personel", data:[dist.A, belum], backgroundColor:["#16a34a","#dc2626"] }] },
     options: { plugins: { legend: { display: false } }, responsive: true }
   });
 }
 
-/* ========== GRAFIK TOP 5 ALAT ========== */
+/* GRAFIK TOP 5 ALAT */
 function renderGrafikAlat() {
   const container = document.getElementById("grafik-alat-content");
   if (!container) return;
@@ -1036,23 +1016,14 @@ function renderGrafikAlat() {
       <div style="display:grid;grid-template-columns:48px 1fr auto;gap:16px;align-items:center;padding:16px 18px;border:1px solid #e7edf5;border-radius:14px;background:#fff">
         <div style="width:48px;height:48px;border-radius:12px;display:grid;place-items:center;font-weight:700;font-size:18px;color:#fff;background:${bc.grad}">${medal}</div>
         <div style="min-width:0">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-            <span style="font-size:18px">⚙️</span>
-            <span style="font-weight:700;font-size:16px;color:#172033;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(item.mesin)}</span>
-          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:18px">⚙️</span><span style="font-weight:700;font-size:16px;color:#172033">${escapeHtml(item.mesin)}</span></div>
           <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
             <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#64748b;font-weight:600;background:#f1f5f9;padding:3px 10px;border-radius:20px">📍 ${escapeHtml(item.area)}</span>
-            <div style="flex:1;min-width:100px;height:8px;background:#eef2f7;border-radius:999px;overflow:hidden">
-              <div style="height:100%;width:${pct}%;background:${bc.grad};border-radius:999px"></div>
-            </div>
+            <div style="flex:1;min-width:100px;height:8px;background:#eef2f7;border-radius:999px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${bc.grad};border-radius:999px"></div></div>
           </div>
         </div>
-        <div style="text-align:right;white-space:nowrap">
-          <div style="font-size:26px;font-weight:700;color:${bc.solid};line-height:1.1">${item.jumlah}</div>
-          <div style="font-size:10px;color:#64748b;font-weight:700;letter-spacing:.05em">PERSONEL</div>
-        </div>
-      </div>
-    `;
+        <div style="text-align:right;white-space:nowrap"><div style="font-size:26px;font-weight:700;color:${bc.solid};line-height:1.1">${item.jumlah}</div><div style="font-size:10px;color:#64748b;font-weight:700;letter-spacing:.05em">PERSONEL</div></div>
+      </div>`;
   }).join("") + '</div>';
   const totalMesin = Object.keys(byMesin).length;
   const totalPersonel = new Set(reports.map(r => r["NIK"])).size;
@@ -1060,11 +1031,10 @@ function renderGrafikAlat() {
     <div style="margin-top:16px;padding:14px 18px;background:linear-gradient(135deg,#f8fafc,#eff6ff);border:1px solid #e7edf5;border-radius:12px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:12px;color:#475569">
       <span>📊 Total: <strong>${totalMesin}</strong> mesin · <strong>${totalPersonel}</strong> personel dinilai</span>
       <span>💡 <strong>${escapeHtml(list[0].mesin)}</strong> paling banyak dikuasai (${list[0].jumlah} personel)</span>
-    </div>
-  `;
+    </div>`;
 }
 
-/* ========== TOP 10 PER GRADE ========== */
+/* TOP 10 */
 function getTop10ForGrade(grade) {
   const byNIK = {};
   const gradeOrder = { "A": 1, "B": 2, "C": 3, "D": 4 };
@@ -1074,9 +1044,8 @@ function getTop10ForGrade(grade) {
     const gf = String(r["Grade Final"] || "").toUpperCase();
     if (!gf || gf === "-" || !gradeOrder[gf]) return;
     const skor = Number(r["Skor (%)"]) || 0;
-    if (!byNIK[nik]) {
-      byNIK[nik] = { nik, nama: r["Nama"] || "-", jabatan: r["Jabatan"] || "-", line: r["Line"] || "-", area: r["Area"] || "-", mesin: r["Mesin"] || "-", skor, gradeTertinggi: gf };
-    } else {
+    if (!byNIK[nik]) byNIK[nik] = { nik, nama: r["Nama"] || "-", jabatan: r["Jabatan"] || "-", line: r["Line"] || "-", area: r["Area"] || "-", mesin: r["Mesin"] || "-", skor, gradeTertinggi: gf };
+    else {
       const co = gradeOrder[byNIK[nik].gradeTertinggi];
       const no = gradeOrder[gf];
       if (no > co) {
@@ -1087,12 +1056,10 @@ function getTop10ForGrade(grade) {
         byNIK[nik].area = r["Area"] || byNIK[nik].area;
         byNIK[nik].mesin = r["Mesin"] || byNIK[nik].mesin;
         byNIK[nik].skor = skor;
-      } else if (no === co) {
-        if (skor > byNIK[nik].skor) {
-          byNIK[nik].skor = skor;
-          byNIK[nik].mesin = r["Mesin"] || byNIK[nik].mesin;
-          byNIK[nik].area = r["Area"] || byNIK[nik].area;
-        }
+      } else if (no === co && skor > byNIK[nik].skor) {
+        byNIK[nik].skor = skor;
+        byNIK[nik].mesin = r["Mesin"] || byNIK[nik].mesin;
+        byNIK[nik].area = r["Area"] || byNIK[nik].area;
       }
     }
   });
@@ -1113,15 +1080,13 @@ function renderTop10() {
   });
   if (top10Chart) top10Chart.destroy();
   top10Chart = new Chart(canvas, {
-    type: "line",
-    data: { labels, datasets },
+    type: "line", data: { labels, datasets },
     options: {
       responsive: true, maintainAspectRatio: false,
       interaction: { mode: "index", intersect: false },
       plugins: {
         legend: { position: "top", labels: { font: { family: "Work Sans", size: 12, weight: "600" }, usePointStyle: true, pointStyle: "circle", padding: 16 } },
-        tooltip: {
-          backgroundColor: "#172033", padding: 12, cornerRadius: 8,
+        tooltip: { backgroundColor: "#172033", padding: 12, cornerRadius: 8,
           callbacks: {
             title: (items) => `Peringkat ${items[0].label}`,
             label: (ctx) => {
@@ -1149,10 +1114,7 @@ function renderTop10Detail(dataPerGrade) {
   const list = dataPerGrade[top10DetailGrade] || [];
   container.innerHTML = `
     <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
-      ${grades.map(g => `
-        <button onclick="switchTop10Detail('${g}')" style="padding:8px 16px;border:2px solid ${g === top10DetailGrade ? GRADE_COLORS[g] : '#e7edf5'};border-radius:10px;background:${g === top10DetailGrade ? GRADE_COLORS[g] + '15' : '#fff'};color:${g === top10DetailGrade ? GRADE_COLORS[g] : '#64748b'};font-weight:700;cursor:pointer;font-family:inherit;font-size:12px">
-          Grade ${g} <span style="opacity:.7">(${dataPerGrade[g].length})</span>
-        </button>`).join("")}
+      ${grades.map(g => `<button onclick="switchTop10Detail('${g}')" style="padding:8px 16px;border:2px solid ${g === top10DetailGrade ? GRADE_COLORS[g] : '#e7edf5'};border-radius:10px;background:${g === top10DetailGrade ? GRADE_COLORS[g] + '15' : '#fff'};color:${g === top10DetailGrade ? GRADE_COLORS[g] : '#64748b'};font-weight:700;cursor:pointer;font-family:inherit;font-size:12px">Grade ${g} <span style="opacity:.7">(${dataPerGrade[g].length})</span></button>`).join("")}
     </div>
     ${list.length === 0 
       ? `<div style="text-align:center;padding:30px;color:#64748b;font-size:13px;background:#f8fafc;border-radius:12px">Belum ada operator dengan Grade ${top10DetailGrade}</div>`
@@ -1161,8 +1123,7 @@ function renderTop10Detail(dataPerGrade) {
             const rankCls = i === 0 ? "r1" : i === 1 ? "r2" : i === 2 ? "r3" : "rn";
             const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : (i+1);
             const color = GRADE_COLORS[top10DetailGrade];
-            return `
-              <div style="display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:center;padding:10px 14px;border:1px solid #e7edf5;border-radius:10px;background:#fff">
+            return `<div style="display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:center;padding:10px 14px;border:1px solid #e7edf5;border-radius:10px;background:#fff">
                 <div class="top10-rank ${rankCls}">${medal}</div>
                 <div style="min-width:0">
                   <div style="font-weight:700;font-size:13px;color:#172033;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(item.nama)}</div>
@@ -1171,10 +1132,8 @@ function renderTop10Detail(dataPerGrade) {
                 <div style="text-align:right"><div style="font-size:16px;font-weight:700;color:${color};line-height:1.1">${item.skor}%</div></div>
               </div>`;
           }).join("")}
-        </div>`}
-  `;
+        </div>`}`;
 }
-
 function switchTop10Detail(grade) {
   top10DetailGrade = grade;
   const grades = ["A", "B", "C", "D"];
@@ -1183,20 +1142,15 @@ function switchTop10Detail(grade) {
   renderTop10Detail(dataPerGrade);
 }
 
-/* ========== DETAIL OPERATOR ========== */
+/* DETAIL OPERATOR */
 function cariOperatorDetail() {
   const q = (document.getElementById("detail-op-search").value || "").toLowerCase().trim();
   const suggest = document.getElementById("detail-op-suggest");
   if (!q) { suggest.innerHTML = ""; return; }
   const matches = allData.personel.filter(p => `${p["Employee Name"]} ${p["Employee ID"]}`.toLowerCase().includes(q)).slice(0, 5);
   if (!matches.length) { suggest.innerHTML = ""; return; }
-  suggest.innerHTML = `<div>${matches.map(p => `
-    <div onclick="pilihOperatorDetail('${escapeHtml(p["Employee ID"])}')" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid #f1f5f9">
-      <div style="font-weight:600;font-size:13px">${escapeHtml(p["Employee Name"])}</div>
-      <div style="font-size:11px;color:#64748b">NIK: ${escapeHtml(p["Employee ID"])} · ${escapeHtml(p["Job Title Name"]||"-")}</div>
-    </div>`).join("")}</div>`;
+  suggest.innerHTML = `<div>${matches.map(p => `<div onclick="pilihOperatorDetail('${escapeHtml(p["Employee ID"])}')" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid #f1f5f9"><div style="font-weight:600;font-size:13px">${escapeHtml(p["Employee Name"])}</div><div style="font-size:11px;color:#64748b">NIK: ${escapeHtml(p["Employee ID"])} · ${escapeHtml(p["Job Title Name"]||"-")}</div></div>`).join("")}</div>`;
 }
-
 function pilihOperatorDetail(nik) {
   detailOperatorNIK = nik;
   const emp = allData.personel.find(p => String(p["Employee ID"]) === String(nik));
@@ -1204,14 +1158,10 @@ function pilihOperatorDetail(nik) {
   document.getElementById("detail-op-suggest").innerHTML = "";
   renderDetailOperator();
 }
-
 function renderDetailOperator() {
   const container = document.getElementById("detail-operator-content");
   if (!container) return;
-  if (!detailOperatorNIK) {
-    container.innerHTML = `<div class="empty-row" style="text-align:center;padding:40px;color:#64748b">Ketik nama atau NIK operator di atas untuk melihat detail kompetensi</div>`;
-    return;
-  }
+  if (!detailOperatorNIK) { container.innerHTML = `<div class="empty-row" style="text-align:center;padding:40px;color:#64748b">Ketik nama atau NIK operator di atas untuk melihat detail kompetensi</div>`; return; }
   const emp = allData.personel.find(p => String(p["Employee ID"]) === String(detailOperatorNIK));
   if (!emp) { container.innerHTML = `<div class="empty-row">Operator tidak ditemukan</div>`; return; }
   const riwayat = allData.report.filter(r => String(r["NIK"] || "").trim() === String(detailOperatorNIK).trim());
@@ -1223,7 +1173,6 @@ function renderDetailOperator() {
   });
   const mesinList = Object.values(perMesin);
   const inisial = emp["Employee Name"].split(" ").map(n => n[0]).join("").slice(0,2).toUpperCase();
-
   const gradeStats = { A: { lulus: 0, total: 0 }, B: { lulus: 0, total: 0 }, C: { lulus: 0, total: 0 }, D: { lulus: 0, total: 0 } };
   mesinList.forEach(r => {
     const detailRaw = r["Detail Kriteria"] || "";
@@ -1243,99 +1192,64 @@ function renderDetailOperator() {
       if (gradeStats[g]) { gradeStats[g].total += totalItem; gradeStats[g].lulus += itemLulus; }
     }
   });
-
   const gradeColors = { A: "#f59e0b", B: "#3b82f6", C: "#22c55e", D: "#8b5cf6" };
   const gradeLabels = { A: "Operator baru", B: "Start & stop mesin", C: "Problem & solusi", D: "Trainer" };
-
   const progressHTML = ["A","B","C","D"].map(g => {
     const s = gradeStats[g];
     const pct = s.total > 0 ? Math.round(s.lulus / s.total * 100) : 0;
     const color = gradeColors[g];
     const empty = s.total === 0;
-    return `
-      <div style="display:grid;grid-template-columns:90px 1fr 120px;gap:14px;align-items:center;padding:10px 0">
+    return `<div style="display:grid;grid-template-columns:90px 1fr 120px;gap:14px;align-items:center;padding:10px 0">
         <div style="display:flex;align-items:center;gap:8px">
           <div style="width:32px;height:32px;border-radius:8px;background:${empty ? '#e2e8f0' : color};display:grid;place-items:center;color:#fff;font-weight:700;font-size:14px">${g}</div>
           <div style="font-size:11px;font-weight:700;color:#475569;line-height:1.2">Grade ${g}<br><span style="font-weight:500;color:#94a3b8;font-size:10px">${gradeLabels[g]}</span></div>
         </div>
-        <div style="height:12px;background:#eef2f7;border-radius:999px;overflow:hidden">
-          <div style="height:100%;width:${pct}%;background:${empty ? '#cbd5e1' : color};border-radius:999px;transition:width .6s"></div>
-        </div>
-        <div style="text-align:right">
-          <div style="font-size:20px;font-weight:700;color:${empty ? '#94a3b8' : color};line-height:1.1">${pct}%</div>
-          <div style="font-size:10px;color:#94a3b8;font-weight:600">${s.lulus}/${s.total} item</div>
-        </div>
+        <div style="height:12px;background:#eef2f7;border-radius:999px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${empty ? '#cbd5e1' : color};border-radius:999px;transition:width .6s"></div></div>
+        <div style="text-align:right"><div style="font-size:20px;font-weight:700;color:${empty ? '#94a3b8' : color};line-height:1.1">${pct}%</div><div style="font-size:10px;color:#94a3b8;font-weight:600">${s.lulus}/${s.total} item</div></div>
       </div>`;
   }).join("");
-
   let gradeFinal = "-";
   const orderDesc = ["D","C","B","A"];
-  for (const g of orderDesc) {
-    const s = gradeStats[g];
-    if (s.total > 0 && s.lulus === s.total) { gradeFinal = g; break; }
-  }
+  for (const g of orderDesc) { const s = gradeStats[g]; if (s.total > 0 && s.lulus === s.total) { gradeFinal = g; break; } }
   const gradeFinalColor = gradeFinal !== "-" ? gradeColors[gradeFinal] : "#94a3b8";
   const totalPenilaian = mesinList.length;
   const rataSkor = mesinList.length ? Math.round(mesinList.reduce((s,m)=>s+(Number(m["Skor (%)"])||0),0)/mesinList.length) : 0;
-
   container.innerHTML = `
     <div class="detail-operator-header" style="align-items:flex-start">
       <div class="detail-op-avatar">${inisial}</div>
-      <div class="detail-op-info">
-        <h3>${escapeHtml(emp["Employee Name"])}</h3>
-        <p>NIK: <strong>${escapeHtml(emp["Employee ID"])}</strong> · ${escapeHtml(emp["Job Title Name"]||"-")} · ${escapeHtml(emp["Organization Name"]||"-")}</p>
-      </div>
+      <div class="detail-op-info"><h3>${escapeHtml(emp["Employee Name"])}</h3><p>NIK: <strong>${escapeHtml(emp["Employee ID"])}</strong> · ${escapeHtml(emp["Job Title Name"]||"-")} · ${escapeHtml(emp["Organization Name"]||"-")}</p></div>
       <div class="detail-op-stats">
         <div class="detail-stat"><div class="detail-stat-label">Total Mesin</div><div class="detail-stat-value">${totalPenilaian}</div></div>
         <div class="detail-stat"><div class="detail-stat-label">Rata-rata Skor</div><div class="detail-stat-value">${rataSkor}%</div></div>
         <div class="detail-stat"><div class="detail-stat-label">Grade Final</div><div class="detail-stat-value" style="color:${gradeFinalColor}">${gradeFinal}</div></div>
       </div>
     </div>
-
     <div style="background:#fff;border:1px solid #e7edf5;border-radius:14px;padding:20px 24px;margin-bottom:18px">
-      <div style="font-size:12px;font-weight:700;color:#64748b;letter-spacing:.05em;text-transform:uppercase;margin-bottom:14px">
-        📊 Progress Kompetensi per Grade
-      </div>
+      <div style="font-size:12px;font-weight:700;color:#64748b;letter-spacing:.05em;text-transform:uppercase;margin-bottom:14px">📊 Progress Kompetensi per Grade</div>
       ${progressHTML}
     </div>
-
     ${mesinList.length === 0 
       ? `<div class="empty-row" style="text-align:center;padding:40px;color:#64748b">Belum ada penilaian untuk operator ini</div>`
       : `<div style="font-size:12px;font-weight:700;color:#64748b;letter-spacing:.05em;text-transform:uppercase;margin-bottom:10px">Mesin yang Dikuasai (${mesinList.length} unit)</div>
         <div class="mesin-list">${mesinList.map(m => {
           const gf = m["Grade Final"] || "-";
           const skor = Number(m["Skor (%)"]) || 0;
-          return `
-            <div class="mesin-item">
-              <div>
-                <div class="mesin-item-title">⚙️ ${escapeHtml(m["Mesin"])}</div>
-                <div class="mesin-item-meta">📍 Area: <strong>${escapeHtml(m["Area"])}</strong> · 📅 ${escapeHtml(String(m["Timestamp"]).slice(0,10))} · 👤 ${escapeHtml(m["Assessor"]||"-")}</div>
-              </div>
-              <div class="mesin-item-right">
-                <span class="grade-badge ${gradeClass(gf)}" style="font-size:12px;padding:6px 14px">Grade ${gf}</span>
-                <div style="font-size:11px;color:#64748b;margin-top:6px;font-weight:600">${skor}%</div>
-              </div>
+          return `<div class="mesin-item">
+              <div><div class="mesin-item-title">⚙️ ${escapeHtml(m["Mesin"])}</div><div class="mesin-item-meta">📍 Area: <strong>${escapeHtml(m["Area"])}</strong> · 📅 ${escapeHtml(String(m["Timestamp"]).slice(0,10))} · 👤 ${escapeHtml(m["Assessor"]||"-")}</div></div>
+              <div class="mesin-item-right"><span class="grade-badge ${gradeClass(gf)}" style="font-size:12px;padding:6px 14px">Grade ${gf}</span><div style="font-size:11px;color:#64748b;margin-top:6px;font-weight:600">${skor}%</div></div>
             </div>`;
-        }).join("")}</div>`}
-  `;
+        }).join("")}</div>`}`;
 }
 
-/* ========== RAPORT ========== */
+/* RAPORT */
 function cariKaryawanRaport() {
   const q = (document.getElementById("raport-search").value || "").toLowerCase().trim();
   const suggest = document.getElementById("raport-search-suggest");
   if (!q) { suggest.innerHTML = ""; return; }
   const matches = allData.personel.filter(p => `${p["Employee Name"]} ${p["Employee ID"]}`.toLowerCase().includes(q)).slice(0, 5);
   if (!matches.length) { suggest.innerHTML = ""; return; }
-  suggest.innerHTML = `<div style="position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e7edf5;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.1);z-index:100;max-height:280px;overflow-y:auto;margin-top:4px">
-    ${matches.map(p => `
-      <div onclick="pilihKaryawanRaport('${escapeHtml(p["Employee ID"])}')" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid #f1f5f9">
-        <div style="font-weight:600;font-size:13px">${escapeHtml(p["Employee Name"])}</div>
-        <div style="font-size:11px;color:#64748b">NIK: ${escapeHtml(p["Employee ID"])} · ${escapeHtml(p["Job Title Name"]||"-")}</div>
-      </div>`).join("")}
-  </div>`;
+  suggest.innerHTML = `<div style="position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e7edf5;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.1);z-index:100;max-height:280px;overflow-y:auto;margin-top:4px">${matches.map(p => `<div onclick="pilihKaryawanRaport('${escapeHtml(p["Employee ID"])}')" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid #f1f5f9"><div style="font-weight:600;font-size:13px">${escapeHtml(p["Employee Name"])}</div><div style="font-size:11px;color:#64748b">NIK: ${escapeHtml(p["Employee ID"])} · ${escapeHtml(p["Job Title Name"]||"-")}</div></div>`).join("")}</div>`;
 }
-
 function pilihKaryawanRaport(nik) {
   currentRaportNIK = nik;
   const emp = allData.personel.find(p => String(p["Employee ID"]) === String(nik));
@@ -1343,7 +1257,6 @@ function pilihKaryawanRaport(nik) {
   document.getElementById("raport-search-suggest").innerHTML = "";
   renderRaport();
 }
-
 function bukaRaport(nik) {
   currentRaportNIK = nik;
   document.querySelectorAll(".nav-item").forEach(i => i.classList.remove("active"));
@@ -1354,18 +1267,13 @@ function bukaRaport(nik) {
   if (emp) document.getElementById("raport-search").value = emp["Employee Name"];
   renderRaport();
 }
-
 function renderRaport() {
   const nik = currentRaportNIK;
   const filterArea = document.getElementById("raport-area-filter").value;
   const filterMesin = document.getElementById("raport-mesin-filter").value;
   const header = document.getElementById("raport-header");
   const content = document.getElementById("raport-content");
-  if (!nik) {
-    header.innerHTML = "";
-    content.innerHTML = '<div class="empty-row" style="padding:60px;text-align:center;color:#64748b">Ketik nama atau NIK karyawan di atas untuk melihat raport</div>';
-    return;
-  }
+  if (!nik) { header.innerHTML = ""; content.innerHTML = '<div class="empty-row" style="padding:60px;text-align:center;color:#64748b">Ketik nama atau NIK karyawan di atas untuk melihat raport</div>'; return; }
   const emp = allData.personel.find(p => String(p["Employee ID"]) === String(nik));
   if (!emp) { content.innerHTML = '<div class="empty-row">Karyawan tidak ditemukan</div>'; return; }
   let raportData = allData.report.filter(r => String(r["NIK"] || "").trim() === String(nik).trim());
@@ -1373,23 +1281,15 @@ function renderRaport() {
   if (filterMesin) raportData = raportData.filter(r => r["Mesin"] === filterMesin);
   raportData.sort((a, b) => String(b["Timestamp"]).localeCompare(String(a["Timestamp"])));
   const inisial = emp["Employee Name"].split(" ").map(n => n[0]).join("").slice(0,2).toUpperCase();
-  header.innerHTML = `
-    <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+  header.innerHTML = `<div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
       <div style="width:64px;height:64px;background:#eff6ff;border-radius:16px;display:grid;place-items:center;font-size:22px;font-weight:700;color:#2563eb">${inisial}</div>
-      <div>
-        <h2 style="margin:0 0 4px;font-size:20px">${escapeHtml(emp["Employee Name"])}</h2>
-        <div style="font-size:13px;color:#64748b">NIK: <strong>${escapeHtml(emp["Employee ID"])}</strong> · ${escapeHtml(emp["Job Title Name"]||"-")} · ${escapeHtml(emp["Organization Name"]||"-")}</div>
-      </div>
+      <div><h2 style="margin:0 0 4px;font-size:20px">${escapeHtml(emp["Employee Name"])}</h2><div style="font-size:13px;color:#64748b">NIK: <strong>${escapeHtml(emp["Employee ID"])}</strong> · ${escapeHtml(emp["Job Title Name"]||"-")} · ${escapeHtml(emp["Organization Name"]||"-")}</div></div>
       <div style="margin-left:auto;display:flex;gap:20px;flex-wrap:wrap">
         <div style="text-align:center"><div style="font-size:11px;color:#64748b;font-weight:700">TOTAL PENILAIAN</div><div style="font-size:24px;font-weight:700;color:#172033">${raportData.length}</div></div>
         <div style="text-align:center"><div style="font-size:11px;color:#64748b;font-weight:700">RATA-RATA SKOR</div><div style="font-size:24px;font-weight:700;color:#172033">${raportData.length ? Math.round(raportData.reduce((s,r)=>s+(Number(r["Skor (%)"])||0),0)/raportData.length) : 0}%</div></div>
       </div>
-    </div>
-  `;
-  if (!raportData.length) {
-    content.innerHTML = '<div class="empty-row" style="padding:40px;text-align:center;color:#64748b">Belum ada penilaian untuk filter ini</div>';
-    return;
-  }
+    </div>`;
+  if (!raportData.length) { content.innerHTML = '<div class="empty-row" style="padding:40px;text-align:center;color:#64748b">Belum ada penilaian untuk filter ini</div>'; return; }
   const latestByMesin = {};
   raportData.forEach(r => {
     const key = r["Area"] + "|" + r["Mesin"];
@@ -1422,69 +1322,43 @@ function renderRaport() {
       { letter: "C", label: GRADE_LEVELS["C"], pct: pctC },
       { letter: "D", label: GRADE_LEVELS["D"], pct: pctD }
     ];
-    return `
-      <div class="raport-card">
+    return `<div class="raport-card">
         <div class="raport-card-header">
-          <div>
-            <div class="raport-card-title"><span style="font-size:16px">⚙️</span> ${escapeHtml(r["Mesin"])}</div>
-            <div class="raport-card-meta">📍 ${escapeHtml(r["Area"])} · 📅 ${escapeHtml(String(r["Timestamp"]).slice(0,16))} · 👤 ${escapeHtml(r["Assessor"]||"-")}</div>
-          </div>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            <span style="font-size:12px;color:#64748b;font-weight:600">Skor: ${skor}%</span>
-            <span class="grade-badge ${gradeClass(gradeFinal)}">Grade ${gradeFinal}</span>
-          </div>
+          <div><div class="raport-card-title"><span style="font-size:16px">⚙️</span> ${escapeHtml(r["Mesin"])}</div><div class="raport-card-meta">📍 ${escapeHtml(r["Area"])} · 📅 ${escapeHtml(String(r["Timestamp"]).slice(0,16))} · 👤 ${escapeHtml(r["Assessor"]||"-")}</div></div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span style="font-size:12px;color:#64748b;font-weight:600">Skor: ${skor}%</span><span class="grade-badge ${gradeClass(gradeFinal)}">Grade ${gradeFinal}</span></div>
         </div>
         <div style="margin-top:16px">
           ${grades.map(g => {
             const isFull = g.pct === 100;
-            return `
-              <div class="grade-progress-row">
+            return `<div class="grade-progress-row">
                 <div class="grade-letter-box ${g.letter}">${g.letter}</div>
-                <div>
-                  <div style="font-size:12px;font-weight:600;color:#334155;margin-bottom:4px">${g.label}</div>
-                  <div class="grade-progress-bar"><div class="grade-progress-fill ${isFull ? g.letter : 'empty'}" style="width:${g.pct}%"></div></div>
-                </div>
+                <div><div style="font-size:12px;font-weight:600;color:#334155;margin-bottom:4px">${g.label}</div><div class="grade-progress-bar"><div class="grade-progress-fill ${isFull ? g.letter : 'empty'}" style="width:${g.pct}%"></div></div></div>
                 <div class="grade-progress-pct ${isFull ? 'full' : ''}">${g.pct}%</div>
               </div>`;
           }).join("")}
         </div>
-      </div>
-    `;
+      </div>`;
   }).join("") + '</div>';
 }
 
-/* ========== KRITERIA ADMIN ========== */
+/* KRITERIA ADMIN */
 async function loadKriteriaAdmin() {
   const area = document.getElementById("kriteria-area-filter").value;
   currentKriteriaArea = area;
   const tb = document.getElementById("kriteria-body");
   const info = document.getElementById("kriteria-info");
   const btnTambah = document.getElementById("btn-tambah-kriteria");
-
-  if (!area) {
-    tb.innerHTML = '<tr><td colspan="5" class="empty-row">Pilih area di atas untuk melihat item penilaian</td></tr>';
-    info.textContent = "Pilih area terlebih dahulu";
-    btnTambah.disabled = true;
-    return;
-  }
-
+  if (!area) { tb.innerHTML = '<tr><td colspan="5" class="empty-row">Pilih area di atas untuk melihat item penilaian</td></tr>'; info.textContent = "Pilih area terlebih dahulu"; btnTambah.disabled = true; return; }
   tb.innerHTML = '<tr><td colspan="5" class="empty-row">Memuat data...</td></tr>';
   info.textContent = "Memuat...";
-
   try {
     const res = await fetch(API_URL + "?action=getAllKriteria&area=" + encodeURIComponent(area));
     const data = await res.json();
     if (!data.ok) throw new Error(data.message);
     kriteriaAdminList = data.kriteria || [];
-
     btnTambah.disabled = false;
     info.textContent = `${kriteriaAdminList.length} item penilaian di area ${area}`;
-
-    if (!kriteriaAdminList.length) {
-      tb.innerHTML = '<tr><td colspan="5" class="empty-row">Belum ada item. Klik "+ Tambah Item" untuk menambahkan.</td></tr>';
-      return;
-    }
-
+    if (!kriteriaAdminList.length) { tb.innerHTML = '<tr><td colspan="5" class="empty-row">Belum ada item. Klik "+ Tambah Item" untuk menambahkan.</td></tr>'; return; }
     const canDelete = currentUser && currentUser.role === "admin";
     tb.innerHTML = kriteriaAdminList.map((k, i) => `
       <tr>
@@ -1496,14 +1370,9 @@ async function loadKriteriaAdmin() {
           <button class="btn btn-sm" onclick="editKriteria(${i})" style="background:#eef2f7;color:#334155">✏️ Edit</button>
           ${canDelete ? `<button class="btn btn-sm btn-danger" onclick="hapusKriteria(${i})">🗑 Hapus</button>` : ""}
         </td>
-      </tr>
-    `).join("");
-
-  } catch (e) {
-    tb.innerHTML = `<tr><td colspan="5" class="empty-row">Error: ${escapeHtml(e.message)}</td></tr>`;
-  }
+      </tr>`).join("");
+  } catch (e) { tb.innerHTML = `<tr><td colspan="5" class="empty-row">Error: ${escapeHtml(e.message)}</td></tr>`; }
 }
-
 function openKriteriaModal() {
   if (!currentKriteriaArea) return toast("Pilih area dulu", true);
   document.getElementById("kriteria-modal-title").textContent = "Tambah Item Penilaian";
@@ -1515,7 +1384,6 @@ function openKriteriaModal() {
   document.getElementById("k-item").value = "";
   document.getElementById("kriteria-modal").classList.add("show");
 }
-
 function editKriteria(idx) {
   const k = kriteriaAdminList[idx];
   if (!k) return;
@@ -1526,12 +1394,12 @@ function editKriteria(idx) {
   document.getElementById("k-grade").value = k.grade;
   document.getElementById("k-kategori").value = k.kategori;
   document.getElementById("k-item").value = k.item;
-  document.getElementById("kriteria-modal").dataset.oldGrade = k.grade;
-  document.getElementById("kriteria-modal").dataset.oldKategori = k.kategori;
-  document.getElementById("kriteria-modal").dataset.oldItem = k.item;
-  document.getElementById("kriteria-modal").classList.add("show");
+  const modal = document.getElementById("kriteria-modal");
+  modal.dataset.oldGrade = k.grade;
+  modal.dataset.oldKategori = k.kategori;
+  modal.dataset.oldItem = k.item;
+  modal.classList.add("show");
 }
-
 async function saveKriteria() {
   const editMode = document.getElementById("k-edit-mode").value;
   const area = currentKriteriaArea;
@@ -1539,114 +1407,195 @@ async function saveKriteria() {
   const kategori = document.getElementById("k-kategori").value.trim() || "-";
   const item = document.getElementById("k-item").value.trim();
   const rowIndex = document.getElementById("k-row-index").value;
-
   if (!area || !grade || !item) return toast("Lengkapi data", true);
-
-  const user = currentUser ? currentUser.nama : "unknown";
-
+  const tag = getUserTag();
   try {
-    let res;
+    let payload;
     if (editMode === "edit") {
       const modal = document.getElementById("kriteria-modal");
-      const payload = {
-        action: "updateKriteria",
-        data: {
-          area, rowIndex: Number(rowIndex), grade, kategori, item, user,
-          oldGrade: modal.dataset.oldGrade || "",
-          oldKategori: modal.dataset.oldKategori || "",
-          oldItem: modal.dataset.oldItem || ""
-        }
-      };
-      res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
-      });
+      payload = { action: "updateKriteria", data: { area, rowIndex: Number(rowIndex), grade, kategori, item, user: tag.user, username: tag.username, oldGrade: modal.dataset.oldGrade || "", oldKategori: modal.dataset.oldKategori || "", oldItem: modal.dataset.oldItem || "" } };
     } else {
-      const payload = {
-        action: "addKriteria",
-        data: { area, grade, kategori, item, user }
-      };
-      res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
-      });
+      payload = { action: "addKriteria", data: { area, grade, kategori, item, user: tag.user, username: tag.username } };
     }
-
+    const res = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) });
     const data = await res.json();
     if (!data.ok) throw new Error(data.message);
-
-    toast(editMode === "edit" ? "✓ Item berhasil diupdate" : "✓ Item berhasil ditambahkan");
+    toast(editMode === "edit" ? "✓ Item diupdate" : "✓ Item ditambahkan");
     closeModal("kriteria-modal");
     loadKriteriaAdmin();
-  } catch (e) {
-    toast("Gagal: " + e.message, true);
-  }
+  } catch (e) { toast("Gagal: " + e.message, true); }
 }
-
 async function hapusKriteria(idx) {
   const k = kriteriaAdminList[idx];
   if (!k) return;
-  if (!confirm(`YAKIN HAPUS ITEM INI?\n\nGrade ${k.grade} — ${k.item}\n\nAksi ini tidak bisa dibatalkan.`)) return;
-
-  const user = currentUser ? currentUser.nama : "unknown";
-
+  if (!confirm(`YAKIN HAPUS?\n\nGrade ${k.grade} — ${k.item}\n\nTidak bisa dibatalkan.`)) return;
+  const tag = getUserTag();
   try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({
-        action: "deleteKriteria",
-        data: { area: k.area, rowIndex: k.rowIndex, user, grade: k.grade, kategori: k.kategori, item: k.item }
-      })
+    const res = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action: "deleteKriteria", data: { area: k.area, rowIndex: k.rowIndex, user: tag.user, username: tag.username, grade: k.grade, kategori: k.kategori, item: k.item } })
     });
     const data = await res.json();
     if (!data.ok) throw new Error(data.message);
-    toast("✓ Item berhasil dihapus");
+    toast("✓ Item dihapus");
     loadKriteriaAdmin();
-  } catch (e) {
-    toast("Gagal: " + e.message, true);
-  }
+  } catch (e) { toast("Gagal: " + e.message, true); }
 }
 
-/* ========== LOG KRITERIA ========== */
-async function loadLogKriteria() {
-  const tb = document.getElementById("log-body");
+/* AUDIT TRAIL */
+async function loadAuditLog() {
+  const tb = document.getElementById("audit-body");
   tb.innerHTML = '<tr><td colspan="6" class="empty-row">Memuat log...</td></tr>';
   try {
-    const res = await fetch(API_URL + "?action=getLogKriteria&limit=100");
+    const res = await fetch(API_URL + "?action=getAuditLog&limit=200");
     const data = await res.json();
     if (!data.ok) throw new Error(data.message);
-    const log = data.log || [];
-    if (!log.length) {
-      tb.innerHTML = '<tr><td colspan="6" class="empty-row">Belum ada log perubahan</td></tr>';
-      return;
-    }
-    tb.innerHTML = log.map(l => {
-      const action = String(l["ACTION"] || "").toUpperCase();
-      const cls = action === "TAMBAH" ? "log-add" : action === "EDIT" ? "log-edit" : "log-delete";
-      const itemBaru = `${l["GRADE"]||""} | ${l["KATEGORI"]||""} | ${l["ITEM"]||""}`;
-      const itemLama = l["GRADE LAMA"] || l["ITEM LAMA"]
-        ? `${l["GRADE LAMA"]||""} | ${l["KATEGORI LAMA"]||""} | ${l["ITEM LAMA"]||""}`
-        : "-";
-      return `
-        <tr>
-          <td>${escapeHtml(l["TIMESTAMP"])}</td>
-          <td><strong>${escapeHtml(l["USER"])}</strong></td>
-          <td><span class="log-action-badge ${cls}">${escapeHtml(action)}</span></td>
-          <td><span class="line-pill">${escapeHtml(l["AREA"])}</span></td>
-          <td style="font-size:12px">${escapeHtml(itemBaru)}</td>
-          <td style="font-size:12px;color:#94a3b8">${escapeHtml(itemLama)}</td>
-        </tr>
-      `;
-    }).join("");
-  } catch (e) {
-    tb.innerHTML = `<tr><td colspan="6" class="empty-row">Error: ${escapeHtml(e.message)}</td></tr>`;
+    auditLogCache = data.log || [];
+    renderAuditLog();
+    document.getElementById("audit-info").textContent = `Total ${data.total || auditLogCache.length} aktivitas tercatat`;
+  } catch (e) { tb.innerHTML = `<tr><td colspan="6" class="empty-row">Error: ${escapeHtml(e.message)}</td></tr>`; }
+}
+
+/* ✅ PATCH: renderAuditLog — filter 3 kategori, tanpa LOGIN/LOGOUT/SIMPAN_PENILAIAN/HAPUS_RAPORT/AUTO_REFRESH */
+function renderAuditLog() {
+  const tb = document.getElementById("audit-body");
+  const q = (document.getElementById("audit-search")?.value || "").toLowerCase();
+  const filterKategori = document.getElementById("audit-filter-kategori")?.value || "";
+
+  const AKSI_PERSONEL = ["TAMBAH_PERSONEL", "EDIT_PERSONEL", "HAPUS_PERSONEL", "SET_STATUS_PERSONEL"];
+  const AKSI_KRITERIA = ["TAMBAH_KRITERIA", "EDIT_KRITERIA", "HAPUS_KRITERIA"];
+  const AKSI_MESIN_AREA = ["TAMBAH_MESIN", "HAPUS_MESIN", "TAMBAH_AREA", "HAPUS_AREA"];
+  const SEMUA_AKSI_TAMPIL = [...AKSI_PERSONEL, ...AKSI_KRITERIA, ...AKSI_MESIN_AREA];
+
+  let list = auditLogCache.filter(l => SEMUA_AKSI_TAMPIL.includes(String(l["AKSI"] || "")));
+
+  if (filterKategori === "PERSONEL")   list = list.filter(l => AKSI_PERSONEL.includes(String(l["AKSI"] || "")));
+  if (filterKategori === "KRITERIA")   list = list.filter(l => AKSI_KRITERIA.includes(String(l["AKSI"] || "")));
+  if (filterKategori === "MESIN_AREA") list = list.filter(l => AKSI_MESIN_AREA.includes(String(l["AKSI"] || "")));
+
+  if (q) list = list.filter(l => `${l["USER"]||""} ${l["USERNAME"]||""} ${l["AKSI"]||""} ${l["DETAIL"]||""}`.toLowerCase().includes(q));
+
+  if (!list.length) { tb.innerHTML = '<tr><td colspan="6" class="empty-row">Tidak ada log sesuai filter</td></tr>'; return; }
+
+  tb.innerHTML = list.map(l => {
+    const aksi = String(l["AKSI"] || "").toUpperCase();
+    let cls = "log-system";
+    if (aksi.startsWith("TAMBAH")) cls = "log-add";
+    else if (aksi.startsWith("EDIT") || aksi.startsWith("SET")) cls = "log-edit";
+    else if (aksi.startsWith("HAPUS")) cls = "log-delete";
+    return `<tr>
+      <td style="font-size:12px">${escapeHtml(l["TIMESTAMP"])}</td>
+      <td><strong>${escapeHtml(l["USER"])}</strong></td>
+      <td style="font-size:12px;color:#64748b">${escapeHtml(l["USERNAME"])}</td>
+      <td><span class="log-action-badge ${cls}">${escapeHtml(aksi)}</span></td>
+      <td style="font-size:11px;color:#64748b">${escapeHtml(l["KATEGORI"])}</td>
+      <td style="font-size:12px">${escapeHtml(l["DETAIL"])}</td>
+    </tr>`;
+  }).join("");
+}
+
+/* MACHINE TAB */
+function switchMachineTab(tab) {
+  const tabComp = document.getElementById("machine-tab-competency");
+  const tabMgmt = document.getElementById("machine-tab-manage");
+  const subComp = document.getElementById("machine-sub-competency");
+  const subMgmt = document.getElementById("machine-sub-manage");
+  if (tab === "competency") {
+    subComp.style.display = ""; subMgmt.style.display = "none";
+    tabComp.style.background = "#2563eb"; tabComp.style.color = "#fff";
+    tabMgmt.style.background = "#eef2f7"; tabMgmt.style.color = "#334155";
+  } else {
+    subComp.style.display = "none"; subMgmt.style.display = "";
+    tabComp.style.background = "#eef2f7"; tabComp.style.color = "#334155";
+    tabMgmt.style.background = "#2563eb"; tabMgmt.style.color = "#fff";
+    renderManageData();
   }
 }
 
-/* ========== NAVIGASI ========== */
+/* MANAGE MESIN/AREA */
+function renderManageData() {
+  const tbArea = document.getElementById("area-manage-body");
+  if (tbArea) {
+    if (!areaList.length) tbArea.innerHTML = '<tr><td colspan="4" class="empty-row">Belum ada area</td></tr>';
+    else tbArea.innerHTML = areaList.map((a, i) => `
+      <tr><td>${i+1}</td><td class="employee-name">${escapeHtml(a.area)}</td><td><span class="line-pill">${escapeHtml(a.sheetForm)}</span></td>
+      <td style="text-align:right"><button class="btn btn-sm btn-danger" onclick="hapusArea('${escapeHtml(a.area)}')">🗑 Hapus</button></td></tr>
+    `).join("");
+  }
+  const tbMesin = document.getElementById("mesin-manage-body");
+  if (tbMesin) {
+    if (!mesinList.length) tbMesin.innerHTML = '<tr><td colspan="4" class="empty-row">Belum ada mesin</td></tr>';
+    else tbMesin.innerHTML = mesinList.map((m, i) => `
+      <tr><td>${i+1}</td><td class="employee-name">${escapeHtml(m.mesin)}</td><td><span class="line-pill">${escapeHtml(m.area)}</span></td>
+      <td style="text-align:right"><button class="btn btn-sm btn-danger" onclick="hapusMesin('${escapeHtml(m.area)}','${escapeHtml(m.mesin)}')">🗑 Hapus</button></td></tr>
+    `).join("");
+  }
+  const btnTambahMesin = document.getElementById("btn-tambah-mesin");
+  if (btnTambahMesin) btnTambahMesin.disabled = areaList.length === 0;
+}
+
+function openAreaModal() { document.getElementById("a-nama").value = ""; document.getElementById("area-modal").classList.add("show"); }
+async function saveArea() {
+  const area = document.getElementById("a-nama").value.trim();
+  if (!area) return toast("Nama area wajib diisi", true);
+  const tag = getUserTag();
+  try {
+    const res = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "addArea", data: { area, user: tag.user, username: tag.username } }) });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.message);
+    toast("✓ Area berhasil dibuat + sheet Form " + area);
+    closeModal("area-modal");
+    await muatSemuaData();
+    renderManageData();
+  } catch (e) { toast("Gagal: " + e.message, true); }
+}
+async function hapusArea(area) {
+  if (!confirm(`Hapus area "${area}"?\n\nSemua mesin di area ini akan dihapus.\nSheet Form tidak dihapus otomatis.`)) return;
+  const tag = getUserTag();
+  try {
+    const res = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "deleteArea", data: { area, user: tag.user, username: tag.username } }) });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.message);
+    toast("✓ Area dihapus");
+    await muatSemuaData();
+    renderManageData();
+  } catch (e) { toast("Gagal: " + e.message, true); }
+}
+function openMesinModal() {
+  if (!areaList.length) return toast("Tambahkan area dulu", true);
+  isiAreaDropdown();
+  document.getElementById("m-area").value = "";
+  document.getElementById("m-nama").value = "";
+  document.getElementById("mesin-modal").classList.add("show");
+}
+async function saveMesin() {
+  const area = document.getElementById("m-area").value;
+  const mesin = document.getElementById("m-nama").value.trim();
+  if (!area || !mesin) return toast("Lengkapi data", true);
+  const tag = getUserTag();
+  try {
+    const res = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "addMesin", data: { area, mesin, user: tag.user, username: tag.username } }) });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.message);
+    toast("✓ Mesin berhasil ditambahkan");
+    closeModal("mesin-modal");
+    await muatSemuaData();
+    renderManageData();
+  } catch (e) { toast("Gagal: " + e.message, true); }
+}
+async function hapusMesin(area, mesin) {
+  if (!confirm(`Hapus mesin "${mesin}" dari area "${area}"?`)) return;
+  const tag = getUserTag();
+  try {
+    const res = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "deleteMesin", data: { area, mesin, user: tag.user, username: tag.username } }) });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.message);
+    toast("✓ Mesin dihapus");
+    await muatSemuaData();
+    renderManageData();
+  } catch (e) { toast("Gagal: " + e.message, true); }
+}
+
+/* NAVIGASI */
 document.querySelectorAll(".nav-item").forEach(btn => btn.addEventListener("click", () => {
   document.querySelectorAll(".nav-item").forEach(i => i.classList.remove("active"));
   document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
@@ -1654,59 +1603,39 @@ document.querySelectorAll(".nav-item").forEach(btn => btn.addEventListener("clic
   document.getElementById(btn.dataset.view + "-view").classList.add("active");
   renderAll();
   if (btn.dataset.view === "kriteria") loadKriteriaAdmin();
-  if (btn.dataset.view === "log") loadLogKriteria();
+  if (btn.dataset.view === "audit") loadAuditLog();
+  if (btn.dataset.view === "machine") switchMachineTab("competency");
 }));
+document.getElementById("raport-area-filter").addEventListener("change", () => { isiMesinRaportFilter(); renderRaport(); });
 
-document.getElementById("raport-area-filter").addEventListener("change", () => {
-  isiMesinRaportFilter();
-  renderRaport();
-});
-
-/* ========== BACKUP ========== */
+/* BACKUP */
 async function lakukanBackup() {
   if (!confirm("Buat file backup sekarang?")) return;
   try {
     toast("Membuat backup...");
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ action: "backup" })
-    });
+    const res = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "backup" }) });
     const data = await res.json();
     if (!data.ok) { toast(data.message || "Gagal backup", true); return; }
     toast("✓ Backup berhasil! File: " + data.fileName);
     if (data.url) setTimeout(() => { if (confirm("Buka file backup sekarang?")) window.open(data.url, "_blank"); }, 500);
-  } catch (e) {
-    toast("Gagal backup: " + e.message, true);
-  }
+  } catch (e) { toast("Gagal backup: " + e.message, true); }
 }
 
-/* ========== MODAL INPUT NILAI ========== */
+/* MODAL INPUT NILAI */
 function openFormModal() {
   if (!currentUser) return;
   const empSel = document.getElementById("form-employee");
-  empSel.innerHTML = '<option value="">— Pilih Karyawan —</option>' +
-    allData.personel
-      .filter(p => (p["Status"] || "Aktif") !== "Non Aktif")
-      .map(p => `<option value="${escapeHtml(p["Employee ID"])}">${escapeHtml(p["Employee Name"])} — ${escapeHtml(p["Job Title Name"]||"")}</option>`)
-      .join("");
+  empSel.innerHTML = '<option value="">— Pilih Karyawan —</option>' + allData.personel.filter(p => (p["Status"] || "Aktif") !== "Non Aktif").map(p => `<option value="${escapeHtml(p["Employee ID"])}">${escapeHtml(p["Employee Name"])} — ${escapeHtml(p["Job Title Name"]||"")}</option>`).join("");
   const areaSel = document.getElementById("form-area");
-  areaSel.innerHTML = '<option value="">— Pilih Area —</option>' +
-    Object.keys(allData.mesin).map(a => `<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`).join("");
+  areaSel.innerHTML = '<option value="">— Pilih Area —</option>' + Object.keys(allData.mesin).map(a => `<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`).join("");
   document.getElementById("form-assessor").value = currentUser.nama || "-";
   document.getElementById("form-assessor-jabatan").value = currentUser.posisi || "-";
   resetFormPenuh();
   document.getElementById("form-modal").classList.add("show");
 }
-
 function onEmployeeChange() {
   const empId = document.getElementById("form-employee").value;
-  if (!empId) {
-    document.getElementById("form-nik").value = "";
-    document.getElementById("form-tgl-masuk").value = "";
-    document.getElementById("form-jabatan").value = "";
-    return;
-  }
+  if (!empId) { document.getElementById("form-nik").value = ""; document.getElementById("form-tgl-masuk").value = ""; document.getElementById("form-jabatan").value = ""; return; }
   const emp = allData.personel.find(p => String(p["Employee ID"]) === empId);
   if (!emp) return;
   document.getElementById("form-nik").value = emp["Employee ID"] || "-";
@@ -1716,106 +1645,73 @@ function onEmployeeChange() {
   const areaSel = document.getElementById("form-area");
   const match = Object.keys(allData.mesin).find(a => org.toLowerCase().includes(a.toLowerCase()));
   if (match) { areaSel.value = match; onAreaChange(); }
-  else {
-    const mesinSel = document.getElementById("form-mesin");
-    if (mesinSel.value) onMesinChange();
-  }
+  else { const mesinSel = document.getElementById("form-mesin"); if (mesinSel.value) onMesinChange(); }
 }
-
 function resetFormPenuh() {
   document.getElementById("form-mesin").innerHTML = '<option value="">— Pilih Mesin —</option>';
   document.getElementById("form-nik").value = "";
   document.getElementById("form-tgl-masuk").value = "";
   document.getElementById("form-jabatan").value = "";
   document.getElementById("form-subtitle").textContent = "Pilih karyawan & mesin untuk memulai penilaian";
-  kriteriaAktif = [];
-  checkedKriteria = new Set();
-  catatanKriteria = {};
-  tanggalKriteria = {};
-  gradeTerbuka = ["A"];
-  gradeLulus = new Set();
+  kriteriaAktif = []; checkedKriteria = new Set(); catatanKriteria = {}; tanggalKriteria = {};
+  gradeTerbuka = ["A"]; gradeLulus = new Set();
   document.getElementById("form-kriteria-wrapper").style.display = "none";
   document.getElementById("form-kriteria-empty").style.display = "none";
   document.getElementById("form-btn-simpan").disabled = true;
   document.getElementById("form-btn-reset").style.display = "none";
 }
-
 function onAreaChange() {
   const area = document.getElementById("form-area").value;
   const mesinSel = document.getElementById("form-mesin");
   if (area) {
     const listMesin = allData.mesin[area] || [];
-    mesinSel.innerHTML = '<option value="">— Pilih Mesin —</option>' +
-      listMesin.map(m => `<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`).join("");
-  } else {
-    mesinSel.innerHTML = '<option value="">— Pilih Mesin —</option>';
-  }
+    mesinSel.innerHTML = '<option value="">— Pilih Mesin —</option>' + listMesin.map(m => `<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`).join("");
+  } else mesinSel.innerHTML = '<option value="">— Pilih Mesin —</option>';
   onMesinChange();
 }
-
 async function onMesinChange() {
   const area  = document.getElementById("form-area").value;
   const mesin = document.getElementById("form-mesin").value;
   const empId = document.getElementById("form-employee").value;
   const wrapper = document.getElementById("form-kriteria-wrapper");
   const empty = document.getElementById("form-kriteria-empty");
-
   if (!area || !mesin) {
-    wrapper.style.display = "none";
-    empty.style.display = "none";
-    kriteriaAktif = [];
-    checkedKriteria = new Set();
+    wrapper.style.display = "none"; empty.style.display = "none";
+    kriteriaAktif = []; checkedKriteria = new Set();
     document.getElementById("form-btn-simpan").disabled = true;
     return;
   }
-
   document.getElementById("form-subtitle").textContent = `${area} · ${mesin}`;
   const body = document.getElementById("form-grade-sections");
   body.innerHTML = '<div style="text-align:center;padding:30px;color:#64748b">Memuat kriteria...</div>';
-  wrapper.style.display = "block";
-  empty.style.display = "none";
-
+  wrapper.style.display = "block"; empty.style.display = "none";
   try {
     const url = API_URL + "?action=getKriteria&area=" + encodeURIComponent(area) + "&mesin=" + encodeURIComponent(mesin);
     const res = await fetch(url);
     const data = await res.json();
-
     if (!data.ok || !data.kriteria || !data.kriteria.length) {
-      wrapper.style.display = "none";
-      empty.style.display = "block";
-      kriteriaAktif = [];
-      checkedKriteria = new Set();
+      wrapper.style.display = "none"; empty.style.display = "block";
+      kriteriaAktif = []; checkedKriteria = new Set();
       document.getElementById("form-btn-simpan").disabled = true;
       return;
     }
-
     kriteriaAktif = data.kriteria;
-
     let riwayatTerakhir = null;
     if (empId) {
-      const matching = allData.report
-        .filter(r =>
-          String(r["NIK"] || "").trim() === String(empId).trim() &&
-          String(r["Mesin"] || "").trim() === String(mesin).trim() &&
-          String(r["Area"] || "").trim() === String(area).trim()
-        )
-        .sort((a, b) => String(b["Timestamp"]).localeCompare(String(a["Timestamp"])));
+      const matching = allData.report.filter(r =>
+        String(r["NIK"] || "").trim() === String(empId).trim() &&
+        String(r["Mesin"] || "").trim() === String(mesin).trim() &&
+        String(r["Area"] || "").trim() === String(area).trim()
+      ).sort((a, b) => String(b["Timestamp"]).localeCompare(String(a["Timestamp"])));
       if (matching.length > 0) riwayatTerakhir = matching[0];
     }
-
-    checkedKriteria = new Set();
-    catatanKriteria = {};
-    tanggalKriteria = {};
-    gradeTerbuka = ["A"];
-    gradeLulus = new Set();
-
+    checkedKriteria = new Set(); catatanKriteria = {}; tanggalKriteria = {};
+    gradeTerbuka = ["A"]; gradeLulus = new Set();
     if (riwayatTerakhir && riwayatTerakhir["Detail Kriteria"]) {
       let detailLama = [];
       try { detailLama = JSON.parse(riwayatTerakhir["Detail Kriteria"]); } catch(e) { detailLama = []; }
       detailLama.forEach((d) => {
-        const kriteriaMatch = kriteriaAktif.findIndex((k, i) =>
-          !checkedKriteria.has(i) && k.item === d.item && k.grade === d.grade
-        );
+        const kriteriaMatch = kriteriaAktif.findIndex((k, i) => !checkedKriteria.has(i) && k.item === d.item && k.grade === d.grade);
         if (kriteriaMatch >= 0 && d.terpenuhi) {
           checkedKriteria.add(kriteriaMatch);
           if (d.tanggal) tanggalKriteria[kriteriaMatch] = d.tanggal;
@@ -1828,16 +1724,13 @@ async function onMesinChange() {
         toast(`✓ Melanjutkan penilaian. Grade ${gradeLama.join(", ")} sudah lulus sebelumnya.`, false, "info");
       }
     }
-
     renderGradeSections();
     document.getElementById("form-btn-reset").style.display = "";
-
   } catch (e) {
     console.error(e);
     body.innerHTML = `<div style="text-align:center;padding:30px;color:#dc2626">Gagal memuat: ${e.message}</div>`;
   }
 }
-
 function renderGradeSections() {
   const container = document.getElementById("form-grade-sections");
   const order = ["A", "B", "C", "D"];
@@ -1858,13 +1751,9 @@ function renderGradeSections() {
     if (isPassed) statusBadge = `<span class="grade-status passed">✓ LULUS 100%</span>`;
     else if (isActive) statusBadge = `<span class="grade-status active">⏳ ${pct}% (${lulus}/${total})</span>`;
     else statusBadge = `<span class="grade-status locked">🔒 Terkunci</span>`;
-    return `
-      <div class="${sectionCls}" data-grade="${g}">
+    return `<div class="${sectionCls}" data-grade="${g}">
         <div class="grade-section-header">
-          <div class="grade-title-wrap">
-            <div class="grade-circle g${g}">${g}</div>
-            <div class="grade-section-info"><h4>Grade ${g} — ${GRADE_LEVELS[g]}</h4><p>${items.length} item penilaian</p></div>
-          </div>
+          <div class="grade-title-wrap"><div class="grade-circle g${g}">${g}</div><div class="grade-section-info"><h4>Grade ${g} — ${GRADE_LEVELS[g]}</h4><p>${items.length} item penilaian</p></div></div>
           ${statusBadge}
         </div>
         <div class="table-scroll">
@@ -1875,8 +1764,7 @@ function renderGradeSections() {
                 const disabled = isLocked;
                 const isChecked = checkedKriteria.has(k.idx);
                 const katLabel = k.kategori || "-";
-                return `
-                  <tr id="row-krit-${k.idx}" class="${isChecked ? 'row-lulus' : ''}">
+                return `<tr id="row-krit-${k.idx}" class="${isChecked ? 'row-lulus' : ''}">
                     <td style="text-align:center;font-weight:600;color:#64748b">${k.no}</td>
                     <td style="text-align:center"><span class="kat-badge kat-${katLabel === '-' ? '-' : katLabel}">${katLabel}</span></td>
                     <td style="font-weight:500">${escapeHtml(k.item)}</td>
@@ -1893,19 +1781,15 @@ function renderGradeSections() {
   container.innerHTML = html;
   updateSkorForm();
 }
-
 function toggleKriteriaForm(idx) {
   if (checkedKriteria.has(idx)) checkedKriteria.delete(idx);
   else checkedKriteria.add(idx);
-  if (checkedKriteria.has(idx) && !tanggalKriteria[idx]) {
-    tanggalKriteria[idx] = new Date().toLocaleDateString("id-ID");
-  }
+  if (checkedKriteria.has(idx) && !tanggalKriteria[idx]) tanggalKriteria[idx] = new Date().toLocaleDateString("id-ID");
   cekKelulusanGrade();
   renderGradeSections();
 }
 function setTanggal(idx, val) { tanggalKriteria[idx] = val; }
 function setCatatan(idx, val) { catatanKriteria[idx] = val; }
-
 function hitungPerGrade() {
   const result = { A: { total:0, lulus:0 }, B: { total:0, lulus:0 }, C: { total:0, lulus:0 }, D: { total:0, lulus:0 } };
   kriteriaAktif.forEach((k, i) => {
@@ -1916,7 +1800,6 @@ function hitungPerGrade() {
   });
   return result;
 }
-
 function cekKelulusanGrade() {
   const perGrade = hitungPerGrade();
   const order = ["A", "B", "C", "D"];
@@ -1933,13 +1816,11 @@ function cekKelulusanGrade() {
   gradeLulus = lulusBaru;
   gradeTerbuka = [...new Set(terbukaBaru)];
 }
-
 function hitungGradeFinal() {
   const order = ["D", "C", "B", "A"];
   for (const g of order) if (gradeLulus.has(g)) return g;
   return null;
 }
-
 function updateSkorForm() {
   const perGrade = hitungPerGrade();
   cekKelulusanGrade();
@@ -1950,19 +1831,13 @@ function updateSkorForm() {
   const progress = document.getElementById("form-progress-text");
   const colors = { A:"#f59e0b", B:"#3b82f6", C:"#22c55e", D:"#8b5cf6" };
   if (gradeFinal) {
-    letter.textContent = gradeFinal;
-    letter.style.color = colors[gradeFinal];
-    name.textContent = "✓ " + GRADE_LEVELS[gradeFinal];
-    name.style.color = colors[gradeFinal];
-    box.style.borderColor = colors[gradeFinal];
-    box.style.background = colors[gradeFinal] + "15";
+    letter.textContent = gradeFinal; letter.style.color = colors[gradeFinal];
+    name.textContent = "✓ " + GRADE_LEVELS[gradeFinal]; name.style.color = colors[gradeFinal];
+    box.style.borderColor = colors[gradeFinal]; box.style.background = colors[gradeFinal] + "15";
   } else {
-    letter.textContent = "-";
-    letter.style.color = "#64748b";
-    name.textContent = "Belum lulus grade apapun";
-    name.style.color = "#64748b";
-    box.style.borderColor = "#e7edf5";
-    box.style.background = "#fff";
+    letter.textContent = "-"; letter.style.color = "#64748b";
+    name.textContent = "Belum lulus grade apapun"; name.style.color = "#64748b";
+    box.style.borderColor = "#e7edf5"; box.style.background = "#fff";
   }
   const statusList = ["A","B","C","D"].map(g => {
     const s = perGrade[g];
@@ -1974,22 +1849,16 @@ function updateSkorForm() {
   const empId = document.getElementById("form-employee").value;
   document.getElementById("form-btn-simpan").disabled = !empId || kriteriaAktif.length === 0 || checkedKriteria.size === 0;
 }
-
 function resetProgressive() {
   if (!confirm("Reset semua centang?")) return;
-  checkedKriteria = new Set();
-  catatanKriteria = {};
-  tanggalKriteria = {};
-  gradeTerbuka = ["A"];
-  gradeLulus = new Set();
+  checkedKriteria = new Set(); catatanKriteria = {}; tanggalKriteria = {};
+  gradeTerbuka = ["A"]; gradeLulus = new Set();
   renderGradeSections();
 }
-
 function closeModal(id) {
   document.getElementById(id).classList.remove("show");
   if (id === "form-modal") resetFormPenuh();
 }
-
 async function simpanForm() {
   const empId = document.getElementById("form-employee").value;
   const emp = allData.personel.find(p => String(p["Employee ID"]) === empId);
@@ -2002,85 +1871,46 @@ async function simpanForm() {
   const total = kriteriaAktif.length;
   const lulus = checkedKriteria.size;
   const skor = total > 0 ? Math.round(lulus / total * 100) : 0;
-  const ringkasanGrade = ["A","B","C","D"].map(g => ({
-    grade: g, level: GRADE_LEVELS[g],
-    total: perGrade[g].total, lulus: perGrade[g].lulus,
-    status: gradeLulus.has(g) ? "LULUS" : (perGrade[g].total === 0 ? "-" : "BELUM")
-  }));
-  const detailKriteria = kriteriaAktif.map((k, i) => ({
-    no: k.no, grade: k.grade, kategori: k.kategori, item: k.item,
-    terpenuhi: checkedKriteria.has(i),
-    tanggal: tanggalKriteria[i] || "",
-    catatan: catatanKriteria[i] || ""
-  }));
-  const payload = {
-    action: "simpanForm",
-    data: {
-      employeeId: emp["Employee ID"], nama: emp["Employee Name"],
-      jabatan: emp["Job Title Name"] || "", line: emp["Organization Name"] || "",
-      area: area, mesin: mesin,
-      gradeDinilai: gradeDinilai, gradeFinal: gradeFinal,
-      totalItem: total, itemLulus: lulus, skor: skor,
-      assessor: currentUser.nama,
-      ringkasanGrade: JSON.stringify(ringkasanGrade),
-      detailKriteria: JSON.stringify(detailKriteria),
-      catatan: ""
-    }
-  };
+  const ringkasanGrade = ["A","B","C","D"].map(g => ({ grade: g, level: GRADE_LEVELS[g], total: perGrade[g].total, lulus: perGrade[g].lulus, status: gradeLulus.has(g) ? "LULUS" : (perGrade[g].total === 0 ? "-" : "BELUM") }));
+  const detailKriteria = kriteriaAktif.map((k, i) => ({ no: k.no, grade: k.grade, kategori: k.kategori, item: k.item, terpenuhi: checkedKriteria.has(i), tanggal: tanggalKriteria[i] || "", catatan: catatanKriteria[i] || "" }));
+  const payload = { action: "simpanForm", data: { employeeId: emp["Employee ID"], nama: emp["Employee Name"], jabatan: emp["Job Title Name"] || "", line: emp["Organization Name"] || "", area: area, mesin: mesin, gradeDinilai: gradeDinilai, gradeFinal: gradeFinal, totalItem: total, itemLulus: lulus, skor: skor, assessor: currentUser.nama, assessorUsername: currentUser.username, ringkasanGrade: JSON.stringify(ringkasanGrade), detailKriteria: JSON.stringify(detailKriteria), catatan: "" } };
   try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(payload)
-    });
+    const res = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) });
     const data = await res.json();
     if (!data.ok) { toast(data.message || "Gagal simpan", true); return; }
     toast(`✓ Tersimpan — Grade Final: ${gradeFinal} (${skor}%)`);
     closeModal("form-modal");
     muatSemuaData();
-  } catch (e) {
-    toast("Gagal konek server", true);
-  }
+  } catch (e) { toast("Gagal konek server", true); }
 }
-
 async function hapusReport(ts) {
   if (!confirm("Hapus data penilaian ini?")) return;
+  const tag = getUserTag();
   try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ action: "hapusReport", timestamp: ts })
-    });
+    const res = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "hapusReport", timestamp: ts, user: tag.user, username: tag.username }) });
     const data = await res.json();
     if (!data.ok) { toast(data.message, true); return; }
-    toast("Data dihapus");
-    muatSemuaData();
+    toast("Data dihapus"); muatSemuaData();
   } catch (e) { toast("Gagal hapus", true); }
 }
 
-/* ========== PERSONEL CRUD ========== */
+/* PERSONEL CRUD */
 function openPersonelModal() {
   document.getElementById("personel-modal-title").textContent = "Tambah Personel";
   document.getElementById("p-edit-mode").value = "";
-  document.getElementById("p-id").value = "";
-  document.getElementById("p-id").disabled = false;
-  document.getElementById("p-nama").value = "";
-  document.getElementById("p-jabatan").value = "";
-  document.getElementById("p-level").value = "";
-  document.getElementById("p-org").value = "";
-  document.getElementById("p-gender").value = "";
-  document.getElementById("p-start").value = "";
+  document.getElementById("p-id").value = ""; document.getElementById("p-id").disabled = false;
+  document.getElementById("p-nama").value = ""; document.getElementById("p-jabatan").value = "";
+  document.getElementById("p-level").value = ""; document.getElementById("p-org").value = "";
+  document.getElementById("p-gender").value = ""; document.getElementById("p-start").value = "";
   document.getElementById("p-status").value = "Aktif";
   document.getElementById("personel-modal").classList.add("show");
 }
-
 function editPersonel(id) {
   const p = allData.personel.find(x => String(x["Employee ID"]) === String(id));
   if (!p) return;
   document.getElementById("personel-modal-title").textContent = "Edit Personel";
   document.getElementById("p-edit-mode").value = id;
-  document.getElementById("p-id").value = p["Employee ID"] || "";
-  document.getElementById("p-id").disabled = true;
+  document.getElementById("p-id").value = p["Employee ID"] || ""; document.getElementById("p-id").disabled = true;
   document.getElementById("p-nama").value = p["Employee Name"] || "";
   document.getElementById("p-jabatan").value = p["Job Title Name"] || "";
   document.getElementById("p-level").value = p["Job Level Name"] || "";
@@ -2090,162 +1920,98 @@ function editPersonel(id) {
   document.getElementById("p-status").value = p["Status"] || "Aktif";
   document.getElementById("personel-modal").classList.add("show");
 }
-
 async function savePersonel() {
   const editMode = document.getElementById("p-edit-mode").value;
-  const data = {
-    nik: document.getElementById("p-id").value.trim(),
-    nama: document.getElementById("p-nama").value.trim(),
-    jabatan: document.getElementById("p-jabatan").value.trim(),
-    jobLevel: document.getElementById("p-level").value.trim(),
-    organization: document.getElementById("p-org").value.trim(),
-    gender: document.getElementById("p-gender").value,
-    startDate: document.getElementById("p-start").value,
-    status: document.getElementById("p-status").value
-  };
+  const tag = getUserTag();
+  const data = { nik: document.getElementById("p-id").value.trim(), nama: document.getElementById("p-nama").value.trim(), jabatan: document.getElementById("p-jabatan").value.trim(), jobLevel: document.getElementById("p-level").value.trim(), organization: document.getElementById("p-org").value.trim(), gender: document.getElementById("p-gender").value, startDate: document.getElementById("p-start").value, status: document.getElementById("p-status").value, user: tag.user, username: tag.username };
   if (!data.nik || !data.nama) return toast("Employee ID & Nama wajib diisi", true);
   try {
     const action = editMode ? "updatePersonel" : "addPersonel";
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ action, data })
-    });
+    const res = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action, data }) });
     const json = await res.json();
     if (!json.ok) throw new Error(json.message || "Gagal");
     toast(editMode ? "Personel diperbarui" : "Personel ditambahkan");
-    closeModal("personel-modal");
-    await muatSemuaData();
+    closeModal("personel-modal"); await muatSemuaData();
   } catch (e) { toast("Gagal: " + e.message, true); }
 }
-
 async function setStatus(nik, status) {
   const p = allData.personel.find(x => String(x["Employee ID"]) === String(nik));
   const nm = p ? p["Employee Name"] : nik;
   const verb = status === "Non Aktif" ? "non-aktifkan" : "aktifkan kembali";
   if (!confirm(`Yakin ingin ${verb} ${nm}?`)) return;
+  const tag = getUserTag();
   try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ action: "setStatusPersonel", data: { nik, status } })
-    });
+    const res = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "setStatusPersonel", data: { nik, status, user: tag.user, username: tag.username } }) });
     const json = await res.json();
     if (!json.ok) throw new Error(json.message);
-    toast(`Status diubah menjadi ${status}`);
-    await muatSemuaData();
+    toast(`Status diubah menjadi ${status}`); await muatSemuaData();
   } catch (e) { toast("Gagal: " + e.message, true); }
 }
-
 async function deletePersonel(nik) {
   const p = allData.personel.find(x => String(x["Employee ID"]) === String(nik));
   const nm = p ? p["Employee Name"] : nik;
   if (!confirm(`HAPUS PERMANEN: Hapus "${nm}" (${nik})?\n\nGunakan "Non Aktifkan" kalau hanya ingin menyembunyikan.`)) return;
+  const tag = getUserTag();
   try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ action: "deletePersonel", data: { nik } })
-    });
+    const res = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "deletePersonel", data: { nik, user: tag.user, username: tag.username } }) });
     const json = await res.json();
     if (!json.ok) throw new Error(json.message);
-    toast("Personel dihapus permanen");
-    await muatSemuaData();
+    toast("Personel dihapus permanen"); await muatSemuaData();
   } catch (e) { toast("Gagal: " + e.message, true); }
 }
 
-/* ========== USER CRUD ========== */
+/* USER CRUD */
 function openUserModal() {
-  document.getElementById("u-nama").value = "";
-  document.getElementById("u-username").value = "";
-  document.getElementById("u-password").value = "";
-  document.getElementById("u-posisi").value = "Assessor";
+  document.getElementById("u-nama").value = ""; document.getElementById("u-username").value = "";
+  document.getElementById("u-password").value = ""; document.getElementById("u-posisi").value = "Assessor";
   document.getElementById("user-modal").classList.add("show");
 }
-
 async function saveUser() {
-  const data = {
-    nama: document.getElementById("u-nama").value.trim(),
-    username: document.getElementById("u-username").value.trim(),
-    password: document.getElementById("u-password").value,
-    posisi: document.getElementById("u-posisi").value
-  };
+  const tag = getUserTag();
+  const data = { nama: document.getElementById("u-nama").value.trim(), username: document.getElementById("u-username").value.trim(), password: document.getElementById("u-password").value, posisi: document.getElementById("u-posisi").value, adminUser: tag.username, adminName: tag.user };
   if (!data.username || !data.password) return toast("Username & password wajib", true);
   try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ action: "addUser", data })
-    });
+    const res = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "addUser", data }) });
     const json = await res.json();
     if (!json.ok) throw new Error(json.message);
-    toast("User ditambahkan");
-    closeModal("user-modal");
+    toast("User ditambahkan"); closeModal("user-modal");
   } catch (e) { toast("Gagal: " + e.message, true); }
 }
 
-/* ========== REFRESH ========== */
+/* REFRESH */
 async function manualRefresh() {
   const btn = document.getElementById("btn-refresh");
   const icon = document.getElementById("refresh-icon");
   const text = document.getElementById("refresh-text");
   if (!btn) return;
-  btn.disabled = true;
-  text.textContent = "Memuat...";
-  icon.style.animation = "spin 1s linear infinite";
-  try {
-    await muatSemuaData();
-    toast("Data dimuat ulang");
-  } catch (e) {
-    toast("Gagal refresh", true);
-  } finally {
-    btn.disabled = false;
-    text.textContent = "Refresh";
-    icon.style.animation = "";
-  }
+  btn.disabled = true; text.textContent = "Memuat..."; icon.style.animation = "spin 1s linear infinite";
+  try { await muatSemuaData(); toast("Data dimuat ulang"); } catch (e) { toast("Gagal refresh", true); }
+  finally { btn.disabled = false; text.textContent = "Refresh"; icon.style.animation = ""; }
 }
-
 async function checkForUpdates() {
   if (!currentUser) return;
   try {
     const res = await fetch(API_URL + "?action=getAll");
     const data = await res.json();
     if (!data.ok) return;
-    const h = JSON.stringify({
-      p: (data.personel || []).length,
-      r: (data.report || []).length,
-      m: Object.keys(data.mesin || {}).length
-    });
+    const h = JSON.stringify({ p: (data.personel || []).length, r: (data.report || []).length, m: Object.keys(data.mesin || {}).length });
     if (_lastHash && h !== _lastHash) {
-      allData.personel = data.personel || [];
-      allData.report = data.report || [];
-      allData.mesin = data.mesin || {};
-      _lastHash = h;
-      renderAll();
-      renderTop10();
-      renderGrafikAlat();
-      toast("✓ Data ter-update");
+      allData.personel = data.personel || []; allData.report = data.report || []; allData.mesin = data.mesin || {};
+      _lastHash = h; renderAll(); renderTop10(); renderGrafikAlat(); toast("✓ Data ter-update");
     }
   } catch (e) {}
 }
 document.addEventListener("visibilitychange", () => { if (!document.hidden && currentUser) checkForUpdates(); });
 setInterval(() => { if (!document.hidden && currentUser) checkForUpdates(); }, 60000);
 
-/* ========== EXPORT PDF ========== */
+/* EXPORT PDF */
 function exportPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: "landscape" });
   doc.setFontSize(16); doc.text("Competency Report", 14, 15);
   doc.setFontSize(10); doc.text(`Oleh: ${currentUser.nama} · ${new Date().toLocaleString("id-ID")}`, 14, 22);
-  const body = allData.report.map(r => [
-    r["Timestamp"], r["NIK"], r["Nama"], r["Area"], r["Mesin"],
-    r["Grade Dinilai"], r["Item Lulus"]+"/"+r["Total Item"], r["Skor (%)"]+"%", r["Grade Final"]
-  ]);
-  doc.autoTable({
-    startY: 28,
-    head: [["Waktu","NIK","Nama","Area","Mesin","Grade","Lulus/Total","Skor","Grade Final"]],
-    body, styles: { fontSize: 8 }, headStyles: { fillColor: [37,99,235] }
-  });
+  const body = allData.report.map(r => [r["Timestamp"], r["NIK"], r["Nama"], r["Area"], r["Mesin"], r["Grade Dinilai"], r["Item Lulus"]+"/"+r["Total Item"], r["Skor (%)"]+"%", r["Grade Final"]]);
+  doc.autoTable({ startY: 28, head: [["Waktu","NIK","Nama","Area","Mesin","Grade","Lulus/Total","Skor","Grade Final"]], body, styles: { fontSize: 8 }, headStyles: { fillColor: [37,99,235] } });
   doc.save(`competency-${new Date().toISOString().slice(0,10)}.pdf`);
   toast("PDF diunduh");
 }
