@@ -186,7 +186,6 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
         <button class="btn" id="btn-refresh" onclick="manualRefresh()" style="background:#3b82f6"><span id="refresh-icon">🔄</span> <span id="refresh-text">Refresh</span></button>
         <button class="btn" onclick="openFormModal()" style="background:#16a34a">✏️ Input Nilai</button>
         <button class="btn btn-backup" onclick="lakukanBackup()">💾 Backup</button>
-        <button class="btn" data-admin-only onclick="exportExcel()" style="background:#0891b2">📥 Excel</button>
         <button class="btn" data-admin-only onclick="exportPDF()" style="background:#dc2626">📄 PDF</button>
         <div class="profile-chip" id="profile-chip">👤 Memuat...</div>
         <button class="btn-logout" onclick="logout()">Logout</button>
@@ -578,7 +577,7 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
     <label>Nama Lengkap</label><input id="u-nama" placeholder="Nama">
     <label>Username</label><input id="u-username" placeholder="username">
     <label>Password</label><input id="u-password" type="password" placeholder="password">
-    <label>Posisi</label><select id="u-posisi"><option>Admin</option><option>Trainer</option><option>Assessor</option><option>Supervisor</option></select>
+    <label>Posisi</label><select id="u-posisi"><option>Admin</option><option>Assessor</option></select>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('user-modal')">Batal</button>
       <button class="btn" onclick="saveUser()">Simpan</button>
@@ -1454,9 +1453,7 @@ function renderRaport() {
   }).join("") + '</div>';
 }
 
-/* ============================================================
-   ✅ KRITERIA ADMIN — MENU BARU
-   ============================================================ */
+/* ========== KRITERIA ADMIN ========== */
 async function loadKriteriaAdmin() {
   const area = document.getElementById("kriteria-area-filter").value;
   currentKriteriaArea = area;
@@ -1529,7 +1526,6 @@ function editKriteria(idx) {
   document.getElementById("k-grade").value = k.grade;
   document.getElementById("k-kategori").value = k.kategori;
   document.getElementById("k-item").value = k.item;
-  // Simpan data lama untuk log
   document.getElementById("kriteria-modal").dataset.oldGrade = k.grade;
   document.getElementById("kriteria-modal").dataset.oldKategori = k.kategori;
   document.getElementById("kriteria-modal").dataset.oldItem = k.item;
@@ -1614,9 +1610,7 @@ async function hapusKriteria(idx) {
   }
 }
 
-/* ============================================================
-   ✅ LOG KRITERIA
-   ============================================================ */
+/* ========== LOG KRITERIA ========== */
 async function loadLogKriteria() {
   const tb = document.getElementById("log-body");
   tb.innerHTML = '<tr><td colspan="6" class="empty-row">Memuat log...</td></tr>';
@@ -2165,7 +2159,7 @@ function openUserModal() {
   document.getElementById("u-nama").value = "";
   document.getElementById("u-username").value = "";
   document.getElementById("u-password").value = "";
-  document.getElementById("u-posisi").value = "Trainer";
+  document.getElementById("u-posisi").value = "Assessor";
   document.getElementById("user-modal").classList.add("show");
 }
 
@@ -2237,22 +2231,7 @@ async function checkForUpdates() {
 document.addEventListener("visibilitychange", () => { if (!document.hidden && currentUser) checkForUpdates(); });
 setInterval(() => { if (!document.hidden && currentUser) checkForUpdates(); }, 60000);
 
-/* ========== EXPORT ========== */
-function exportExcel() {
-  const rows = [["Timestamp","NIK","Nama","Area","Mesin","Grade Dinilai","Total","Lulus","Skor","Grade Final","Assessor"]];
-  allData.report.forEach(r => rows.push([
-    r["Timestamp"], r["NIK"], r["Nama"], r["Area"], r["Mesin"],
-    r["Grade Dinilai"], r["Total Item"], r["Item Lulus"], r["Skor (%)"], r["Grade Final"], r["Assessor"]
-  ]));
-  const csv = rows.map(r => r.map(c => `"${String(c||"").replace(/"/g,'""')}"`).join(",")).join("\n");
-  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url; a.download = `competency-${new Date().toISOString().slice(0,10)}.csv`; a.click();
-  URL.revokeObjectURL(url);
-  toast("Excel diunduh");
-}
-
+/* ========== EXPORT PDF ========== */
 function exportPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: "landscape" });
