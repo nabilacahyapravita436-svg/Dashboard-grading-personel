@@ -34,9 +34,13 @@ body{margin:0;width:100%;color:var(--ink);font-family:"Work Sans",sans-serif;bac
 @keyframes enter{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 7px 20px rgba(15,23,42,.045)}
-.kpi-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px;margin-bottom:23px}
-.kpi-card{padding:18px;min-width:0;border-top:4px solid #dbeafe}.kpi-card:nth-child(3){border-top-color:#fbbf24}.kpi-card:nth-child(4){border-top-color:#8b5cf6}.kpi-card:nth-child(5){border-top-color:#ef4444}
-.kpi-label{color:var(--muted);font-size:12px;font-weight:600}.kpi-value{font-size:30px;font-weight:700;line-height:1.2;margin:11px 0 7px}.kpi-note{color:#64748b;font-size:12px}
+.kpi-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:14px;margin-bottom:23px}
+.kpi-card{padding:18px;min-width:0;border-top:4px solid #dbeafe}
+.kpi-card-a{border-top-color:#f59e0b}
+.kpi-card-b{border-top-color:#3b82f6}
+.kpi-card-c{border-top-color:#22c55e}
+.kpi-card-d{border-top-color:#8b5cf6}
+.kpi-label{color:var(--muted);font-size:15px;font-weight:600}.kpi-value{font-size:30px;font-weight:700;line-height:1.2;margin:11px 0 7px}.kpi-note{color:#64748b;font-size:11px}
 .content-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:20px}
 .panel-heading{margin:0;padding:20px 21px 0;font-size:17px}
 .distribution{padding:18px 21px 22px;display:grid;gap:17px}
@@ -103,15 +107,16 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
 .raport-card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px;flex-wrap:wrap}
 .raport-card-title{font-weight:700;font-size:16px;color:#172033;display:flex;align-items:center;gap:8px}
 .raport-card-meta{font-size:12px;color:#64748b;margin-top:4px}
-.grade-progress-row{display:grid;grid-template-columns:44px 1fr 60px;gap:12px;align-items:center;margin-bottom:10px}
+.grade-progress-row{display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:center;margin-bottom:10px}
 .grade-letter-box{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;color:#fff;font-weight:700;font-size:14px}
 .grade-letter-box.A{background:#f59e0b}.grade-letter-box.B{background:#3b82f6}.grade-letter-box.C{background:#22c55e}.grade-letter-box.D{background:#8b5cf6}
 .grade-progress-bar{height:8px;background:#eef2f7;border-radius:999px;overflow:hidden}
 .grade-progress-fill{height:100%;border-radius:999px;transition:.3s}
 .grade-progress-fill.A{background:#f59e0b}.grade-progress-fill.B{background:#3b82f6}.grade-progress-fill.C{background:#22c55e}.grade-progress-fill.D{background:#8b5cf6}
 .grade-progress-fill.empty{background:#e2e8f0}
-.grade-progress-pct{font-size:12px;font-weight:700;color:#64748b;text-align:right}
+.grade-progress-pct{font-size:12px;font-weight:700;color:#64748b}
 .grade-progress-pct.full{color:#16a34a}
+.grade-pct-wrap{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
 .search-raport-box{padding:18px 20px;background:linear-gradient(135deg,#f8fafc,#eff6ff);border:1px solid var(--line);border-radius:14px;margin-bottom:16px}
 .top10-rank{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-weight:700;font-size:12px;color:#fff}
 .top10-rank.r1{background:linear-gradient(135deg,#fbbf24,#f59e0b)}
@@ -139,6 +144,72 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
 .log-login{background:#e0e7ff;color:#4338ca}
 .log-logout{background:#f3e8ff;color:#7c3aed}
 .log-system{background:#f1f5f9;color:#475569}
+.guest-banner{display:none;margin-bottom:16px;padding:12px 18px;background:#fef3c7;border:1px solid #fde68a;border-radius:10px;color:#92400e;font-size:13px;font-weight:600}
+body.guest-mode .guest-banner{display:block}
+
+/* ===== GLOBAL REMINDER / TIME BOMB ===== */
+/* Selalu berada di atas semua menu dan view, tanpa mengambil ruang layout. */
+.reminder-banner{
+  display:none;
+  position:fixed;
+  top:90px;
+  right:24px;
+  width:min(440px,calc(100vw - 48px));
+  max-height:min(70vh,620px);
+  padding:16px 18px;
+  border-radius:16px;
+  flex-wrap:wrap;
+  align-items:flex-start;
+  gap:12px;
+  z-index:900;
+  box-shadow:0 18px 45px rgba(15,23,42,.18),0 4px 14px rgba(15,23,42,.08);
+  backdrop-filter:blur(8px);
+  transition:width .22s ease,height .22s ease,padding .22s ease,border-radius .22s ease,box-shadow .22s ease,transform .22s ease;
+}
+.reminder-banner.show{display:flex}
+.reminder-banner.warn{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fcd34d;color:#78350f}
+.reminder-banner.danger{background:linear-gradient(135deg,#fff1f2,#fee2e2);border:1px solid #fca5a5;color:#7f1d1d}
+.reminder-icon{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:22px;flex-shrink:0}
+.reminder-banner.warn .reminder-icon{background:#f59e0b;color:#fff}
+.reminder-banner.danger .reminder-icon{background:#dc2626;color:#fff;animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.reminder-title{font-weight:700;font-size:15px;line-height:1.35;margin-bottom:4px}
+.reminder-subtitle{font-size:12px;font-weight:600;opacity:.85;margin-bottom:10px;line-height:1.45}
+.reminder-content{flex:1;min-width:0;overflow:hidden}
+.reminder-chips{display:flex;flex-wrap:wrap;gap:8px;max-height:220px;overflow-y:auto;padding-right:3px}
+.reminder-chip{padding:6px 12px;border-radius:20px;background:#fff;border:1px solid rgba(0,0,0,.08);font-size:12px;font-weight:700;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px;font-family:inherit;max-width:100%}
+.reminder-chip:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.reminder-chip .days{font-weight:500;opacity:.7;font-size:11px}
+.reminder-minimize{width:30px;height:30px;display:grid;place-items:center;flex:0 0 30px;border:1px solid rgba(0,0,0,.1);border-radius:9px;background:rgba(255,255,255,.75);color:inherit;font-size:18px;font-weight:700;line-height:1;cursor:pointer;transition:.15s}
+.reminder-minimize:hover{background:#fff;transform:scale(1.05)}
+.reminder-banner.minimized{
+  width:58px;
+  height:58px;
+  min-height:58px;
+  max-height:58px;
+  padding:0;
+  border-radius:17px;
+  align-items:center;
+  justify-content:center;
+  gap:0;
+  cursor:pointer;
+  box-shadow:0 12px 32px rgba(15,23,42,.22);
+}
+.reminder-banner.minimized .reminder-icon{width:58px;height:58px;border-radius:17px;font-size:25px}
+.reminder-banner.minimized .reminder-content{display:none}
+.reminder-banner.minimized .reminder-minimize{position:absolute;right:-5px;top:-5px;width:22px;height:22px;min-width:22px;border-radius:50%;font-size:13px;background:#fff;box-shadow:0 3px 10px rgba(0,0,0,.16);z-index:2}
+.reminder-banner.minimized .reminder-minimize::after{content:"↗"}
+.reminder-banner.minimized .reminder-minimize{font-size:0}
+body.guest-mode .reminder-chip{cursor:not-allowed;opacity:.55}
+body.guest-mode .reminder-chip:hover{transform:none;box-shadow:none}
+body.guest-mode .reminder-chip::after{content:" 🔒";font-size:10px}
+@media(max-width:620px){
+  .reminder-banner{top:74px;right:12px;width:calc(100vw - 24px);max-height:65vh;padding:14px}
+  .reminder-banner.minimized{width:54px;height:54px;min-height:54px;max-height:54px;padding:0}
+  .reminder-banner.minimized .reminder-icon{width:54px;height:54px}
+}
+
+@media(max-width:1400px){.kpi-grid{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:1120px){.kpi-grid{grid-template-columns:repeat(3,1fr)}.machine-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:820px){.sidebar{width:76px;padding:20px 10px}.brand{justify-content:center;padding:0 0 24px}.brand-text,.menu-caption,.nav-text{display:none}.nav-item{justify-content:center;padding:12px 6px}.workspace{padding:25px 22px 35px}.content-grid{grid-template-columns:1fr}}
 @media(max-width:620px){.dashboard-shell{display:block}.sidebar{width:100%;min-height:auto;position:static;padding:12px 14px;flex-direction:row;align-items:center;gap:10px}.brand{padding:0;border:0}.nav-list{display:flex;flex:1;justify-content:space-between;gap:4px}.nav-item{width:auto;flex:1}.workspace{padding:22px 15px 30px}.kpi-grid{grid-template-columns:repeat(2,1fr)}.machine-grid{grid-template-columns:1fr}}
@@ -147,16 +218,27 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
 <body>
 
 <!-- LOGIN -->
-<div id="login-screen" style="position:fixed;inset:0;background:linear-gradient(135deg,#172033 0%,#1e3a8a 100%);display:grid;place-items:center;z-index:9999;padding:20px">
-  <form id="login-form" style="background:#fff;padding:36px;border-radius:16px;width:min(400px,100%);box-shadow:0 20px 60px rgba(0,0,0,.3)">
+<div id="login-screen" style="position:fixed;inset:0;background:linear-gradient(135deg,#172033 0%,#1e3a8a 100%);display:grid;place-items:center;z-index:9999;padding:20px;overflow-y:auto">
+  <form id="login-form" style="background:#fff;padding:36px;border-radius:16px;width:min(400px,100%);box-shadow:0 20px 60px rgba(0,0,0,.3);margin:auto">
     <div style="width:52px;height:52px;background:linear-gradient(135deg,#2563eb,#7c3aed);border-radius:12px;display:grid;place-items:center;color:#fff;font-weight:700;font-size:20px;margin-bottom:20px">EC</div>
     <h2 style="margin:0 0 6px;font-size:22px;color:#172033">Login Dashboard</h2>
     <p style="margin:0 0 22px;color:#64748b;font-size:13px">Masukkan kredensial Anda</p>
     <label style="font-size:12px;font-weight:700;color:#475569">Username</label>
-    <input id="login-username" required autocomplete="username" style="width:100%;min-height:44px;border:1px solid #dbe3ee;border-radius:9px;padding:0 12px;margin:6px 0 16px;font:inherit;font-size:14px;outline:none">
+    <input id="login-username" autocomplete="username" style="width:100%;min-height:44px;border:1px solid #dbe3ee;border-radius:9px;padding:0 12px;margin:6px 0 16px;font:inherit;font-size:14px;outline:none">
     <label style="font-size:12px;font-weight:700;color:#475569">Password</label>
-    <input id="login-password" type="password" required autocomplete="current-password" style="width:100%;min-height:44px;border:1px solid #dbe3ee;border-radius:9px;padding:0 12px;margin:6px 0 16px;font:inherit;font-size:14px;outline:none">
+    <input id="login-password" type="password" autocomplete="current-password" style="width:100%;min-height:44px;border:1px solid #dbe3ee;border-radius:9px;padding:0 12px;margin:6px 0 16px;font:inherit;font-size:14px;outline:none">
     <button type="submit" id="login-btn" style="width:100%;min-height:46px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:0;border-radius:9px;font:inherit;font-weight:700;font-size:15px;cursor:pointer">Masuk</button>
+
+    <div style="display:flex;align-items:center;gap:10px;margin:18px 0 14px">
+      <div style="flex:1;height:1px;background:#e2e8f0"></div>
+      <div style="font-size:11px;color:#94a3b8;font-weight:600;letter-spacing:.05em">ATAU</div>
+      <div style="flex:1;height:1px;background:#e2e8f0"></div>
+    </div>
+
+    <button type="button" onclick="masukSebagaiGuest()" style="width:100%;min-height:46px;background:#f1f5f9;color:#334155;border:1px solid #e2e8f0;border-radius:9px;font:inherit;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+      👁️ Masuk sebagai Guest (Lihat saja)
+    </button>
+
     <div id="login-error" style="color:#dc2626;font-size:13px;margin-top:12px;text-align:center;min-height:18px"></div>
   </form>
 </div>
@@ -179,6 +261,17 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
     </nav>
   </aside>
 
+  <!-- GLOBAL REMINDER / TIME BOMB -->
+  <div id="reminder-banner" class="reminder-banner" role="alert" aria-live="polite" title="Klik untuk memperbesar kembali">
+    <div class="reminder-icon">⏰</div>
+    <div class="reminder-content">
+      <div class="reminder-title" id="reminder-title">Loading...</div>
+      <div class="reminder-subtitle" id="reminder-subtitle">Perhitungan penilaian &gt; 90 hari</div>
+      <div class="reminder-chips" id="reminder-chips"></div>
+    </div>
+    <button type="button" id="reminder-minimize" class="reminder-minimize" onclick="toggleReminder(event)" title="Minimize reminder" aria-label="Minimize reminder">−</button>
+  </div>
+
   <main class="workspace">
     <header class="topbar">
       <div>
@@ -187,27 +280,88 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
       </div>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <button class="btn" id="btn-refresh" onclick="manualRefresh()" style="background:#3b82f6"><span id="refresh-icon">🔄</span> <span id="refresh-text">Refresh</span></button>
-        <button class="btn" onclick="openFormModal()" style="background:#16a34a">✏️ Input Nilai</button>
-        <button class="btn btn-backup" onclick="lakukanBackup()">💾 Backup</button>
+        <button class="btn" onclick="openFormModal()" style="background:#16a34a" data-write-action>✏️ Input Nilai</button>
+        <button class="btn btn-backup" onclick="lakukanBackup()" data-write-action>💾 Backup</button>
         <button class="btn" data-admin-only onclick="exportPDF()" style="background:#dc2626">📄 PDF</button>
         <div class="profile-chip" id="profile-chip">👤 Memuat...</div>
         <button class="btn-logout" onclick="logout()">Logout</button>
       </div>
     </header>
 
+    <div class="guest-banner">👁️ Mode Guest — Anda hanya dapat melihat data, tidak dapat mengubah apapun.</div>
+
     <!-- DASHBOARD VIEW -->
     <section id="dashboard-view" class="view active">
       <div class="kpi-grid">
-        <article class="panel kpi-card"><div class="kpi-label">Total Employee</div><div id="kpi-employee-value" class="kpi-value">0</div><div class="kpi-note">Data dari sheet Personel</div></article>
-        <article class="panel kpi-card"><div class="kpi-label">Total Penilaian</div><div id="kpi-machine-value" class="kpi-value">0</div><div class="kpi-note">Record di sheet Raport</div></article>
-        <article class="panel kpi-card"><div class="kpi-label">Grade A</div><div id="kpi-grade-a-value" class="kpi-value">0</div><div class="kpi-note">Operator baru</div></article>
-        <article class="panel kpi-card"><div class="kpi-label">Grade D</div><div id="kpi-grade-d-value" class="kpi-value">0</div><div class="kpi-note">Trainer</div></article>
-        <article class="panel kpi-card"><div class="kpi-label">Total Mesin</div><div id="kpi-gap-value" class="kpi-value">0</div><div class="kpi-note">Di semua area</div></article>
+        <article class="panel kpi-card">
+          <div class="kpi-label">Total Employee</div>
+          <div id="kpi-employee-value" class="kpi-value">0</div>
+          <div class="kpi-note">Data dari sheet Personel</div>
+        </article>
+        <article class="panel kpi-card">
+          <div class="kpi-label">Total Dinilai</div>
+          <div id="kpi-dinilai-value" class="kpi-value">0</div>
+          <div class="kpi-note">Employee × Mesin</div>
+        </article>
+        <article class="panel kpi-card">
+          <div class="kpi-label">Total Mesin</div>
+          <div id="kpi-machine-value" class="kpi-value">0</div>
+          <div class="kpi-note">Master data mesin</div>
+        </article>
+        <article class="panel kpi-card kpi-card-a"><div class="kpi-label">Grade A</div><div id="kpi-grade-a-value" class="kpi-value">0</div><div class="kpi-note">Operator baru</div></article>
+        <article class="panel kpi-card kpi-card-b"><div class="kpi-label">Grade B</div><div id="kpi-grade-b-value" class="kpi-value">0</div><div class="kpi-note">Start &amp; stop mesin</div></article>
+        <article class="panel kpi-card kpi-card-c"><div class="kpi-label">Grade C</div><div id="kpi-grade-c-value" class="kpi-value">0</div><div class="kpi-note">Problem &amp; solusi</div></article>
+        <article class="panel kpi-card kpi-card-d"><div class="kpi-label">Grade D</div><div id="kpi-grade-d-value" class="kpi-value">0</div><div class="kpi-note">Trainer</div></article>
+      </div>
+
+      <div class="content-grid" style="margin-bottom:23px">
+        <section class="panel">
+          <h2 class="panel-heading">Distribusi Kompetensi</h2>
+          <div class="distribution">
+            <div class="grade-progress-row">
+              <div class="grade-letter-box A">A</div>
+              <div>
+                <div class="grade-progress-bar"><div id="bar-a" class="grade-progress-fill A" style="width:0%"></div></div>
+                <div class="grade-pct-wrap"><span class="grade-progress-pct" id="pct-a">0%</span></div>
+              </div>
+            </div>
+            <div class="grade-progress-row">
+              <div class="grade-letter-box B">B</div>
+              <div>
+                <div class="grade-progress-bar"><div id="bar-b" class="grade-progress-fill B" style="width:0%"></div></div>
+                <div class="grade-pct-wrap"><span class="grade-progress-pct" id="pct-b">0%</span></div>
+              </div>
+            </div>
+            <div class="grade-progress-row">
+              <div class="grade-letter-box C">C</div>
+              <div>
+                <div class="grade-progress-bar"><div id="bar-c" class="grade-progress-fill C" style="width:0%"></div></div>
+                <div class="grade-pct-wrap"><span class="grade-progress-pct" id="pct-c">0%</span></div>
+              </div>
+            </div>
+            <div class="grade-progress-row">
+              <div class="grade-letter-box D">D</div>
+              <div>
+                <div class="grade-progress-bar"><div id="bar-d" class="grade-progress-fill D" style="width:0%"></div></div>
+                <div class="grade-pct-wrap"><span class="grade-progress-pct" id="pct-d">0%</span></div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="panel">
+          <h2 class="panel-heading">Interpretasi Grade</h2>
+          <div class="interpretation">
+            <div class="grade-explain"><span class="grade-key grade-a">A</span><span>Operator baru</span></div>
+            <div class="grade-explain"><span class="grade-key grade-b">B</span><span>Start dan stop mesin</span></div>
+            <div class="grade-explain"><span class="grade-key grade-c">C</span><span>Identifikasi masalah dan solusi</span></div>
+            <div class="grade-explain"><span class="grade-key grade-d">D</span><span>Trainer</span></div>
+          </div>
+        </section>
       </div>
 
       <section class="panel" style="margin-bottom:23px;padding-bottom:20px">
         <div style="padding:20px 21px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
-          <h2 class="panel-heading" style="padding:0">📊 Top 5 Alat — Paling Banyak Dikuasai</h2>
+          <h2 class="panel-heading" style="padding:0">📊 Top 5 Mesin — Paling Banyak Dikuasai</h2>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <select id="alat-filter-area" class="field" style="min-height:36px;font-size:12px;padding:0 10px;width:auto" onchange="renderGrafikAlat()"><option value="">Semua Area</option></select>
             <select id="alat-filter-grade" class="field" style="min-height:36px;font-size:12px;padding:0 10px;width:auto" onchange="renderGrafikAlat()">
@@ -221,27 +375,6 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
         </div>
         <div style="padding:16px 21px 0" id="grafik-alat-content"></div>
       </section>
-
-      <div class="content-grid">
-        <section class="panel">
-          <h2 class="panel-heading">Distribusi Kompetensi</h2>
-          <div class="distribution">
-            <div class="grade-progress-row"><div class="grade-letter-box A">A</div><div class="grade-progress-bar"><div id="bar-a" class="grade-progress-fill A" style="width:0%"></div></div><div class="grade-progress-pct" id="pct-a">0%</div></div>
-            <div class="grade-progress-row"><div class="grade-letter-box B">B</div><div class="grade-progress-bar"><div id="bar-b" class="grade-progress-fill B" style="width:0%"></div></div><div class="grade-progress-pct" id="pct-b">0%</div></div>
-            <div class="grade-progress-row"><div class="grade-letter-box C">C</div><div class="grade-progress-bar"><div id="bar-c" class="grade-progress-fill C" style="width:0%"></div></div><div class="grade-progress-pct" id="pct-c">0%</div></div>
-            <div class="grade-progress-row"><div class="grade-letter-box D">D</div><div class="grade-progress-bar"><div id="bar-d" class="grade-progress-fill D" style="width:0%"></div></div><div class="grade-progress-pct" id="pct-d">0%</div></div>
-          </div>
-        </section>
-        <section class="panel">
-          <h2 class="panel-heading">Interpretasi Grade</h2>
-          <div class="interpretation">
-            <div class="grade-explain"><span class="grade-key grade-a">A</span><span>Operator baru</span></div>
-            <div class="grade-explain"><span class="grade-key grade-b">B</span><span>Start dan stop mesin</span></div>
-            <div class="grade-explain"><span class="grade-key grade-c">C</span><span>Identifikasi masalah dan solusi</span></div>
-            <div class="grade-explain"><span class="grade-key grade-d">D</span><span>Trainer</span></div>
-          </div>
-        </section>
-      </div>
 
       <section class="panel machine-overview">
         <h2 class="panel-heading">Machine Competency berdasarkan Area</h2>
@@ -291,7 +424,7 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
         <div class="table-title-row"><h2 class="table-title">Employee — Sheet Personel</h2></div>
         <div class="table-scroll">
           <table>
-            <thead><tr><th>No</th><th>Employee ID</th><th>Nama</th><th>Job Level</th><th>Organization</th><th>Job Title</th><th>Gender</th><th>Start Date</th><th>Status</th><th>Aksi</th></tr></thead>
+            <thead><tr><th>No</th><th>Employee ID</th><th>Nama</th><th>Job Level</th><th>Organization</th><th>Job Title</th><th>Gender</th><th>Start Date</th><th>Status</th><th data-admin-only>Aksi</th></tr></thead>
             <tbody id="employee-table-body"></tbody>
           </table>
         </div>
@@ -378,13 +511,13 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
     <section id="history-view" class="view">
       <div class="content-grid" style="margin-bottom:20px">
         <section class="panel"><h2 class="panel-heading">Distribusi Grade</h2><div style="padding:20px"><canvas id="chart-distribution" height="220"></canvas></div></section>
-        <section class="panel"><h2 class="panel-heading">Statistik Lulus/Belum</h2><div style="padding:20px"><canvas id="chart-trend" height="220"></canvas></div></section>
+        <section class="panel"><h2 class="panel-heading">Statistik per Grade</h2><div style="padding:20px"><canvas id="chart-trend" height="220"></canvas></div></section>
       </div>
       <section class="panel table-panel">
         <div class="table-title-row"><h2 class="table-title">Riwayat Penilaian (Sheet Raport)</h2></div>
         <div class="table-scroll">
           <table>
-            <thead><tr><th>Waktu</th><th>NIK</th><th>Nama</th><th>Area</th><th>Mesin</th><th>Item</th><th>Skor</th><th>Grade</th><th>Assessor</th><th data-admin-only>Aksi</th></tr></thead>
+            <thead><tr><th>Waktu</th><th>NIK</th><th>Nama</th><th>Area</th><th>Mesin</th><th>Skor</th><th>Grade</th><th>Assessor</th><th data-admin-only>Aksi</th></tr></thead>
             <tbody id="history-table-body"></tbody>
           </table>
         </div>
@@ -395,7 +528,7 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
     <section id="kriteria-view" class="view">
       <section class="panel filter-bar">
         <div class="filter-group"><label class="filter-label">Pilih Area</label><select id="kriteria-area-filter" class="field" onchange="loadKriteriaAdmin()"><option value="">— Pilih Area —</option></select></div>
-        <button class="btn" onclick="openKriteriaModal()" id="btn-tambah-kriteria" disabled style="margin-bottom:0">+ Tambah Item</button>
+        <button class="btn" onclick="openKriteriaModal()" id="btn-tambah-kriteria" disabled style="margin-bottom:0" data-admin-only>+ Tambah Item</button>
       </section>
       <section class="panel table-panel">
         <div class="table-title-row">
@@ -404,7 +537,7 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
         </div>
         <div class="table-scroll">
           <table>
-            <thead><tr><th>No</th><th>Grade</th><th>Kategori</th><th>Item Penilaian</th><th style="text-align:right">Aksi</th></tr></thead>
+            <thead><tr><th>No</th><th>Grade</th><th>Kategori</th><th>Item Penilaian</th><th style="text-align:right" data-admin-only>Aksi</th></tr></thead>
             <tbody id="kriteria-body"><tr><td colspan="5" class="empty-row">Pilih area di atas untuk melihat item penilaian</td></tr></tbody>
           </table>
         </div>
@@ -568,7 +701,12 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
     <label>Nama Lengkap</label><input id="u-nama" placeholder="Nama">
     <label>Username</label><input id="u-username" placeholder="username">
     <label>Password</label><input id="u-password" type="password" placeholder="password">
-    <label>Posisi</label><select id="u-posisi"><option>Admin</option><option>Assessor</option></select>
+    <label>Posisi</label>
+    <select id="u-posisi">
+      <option>Admin</option>
+      <option>Assessor</option>
+      <option>Guest</option>
+    </select>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('user-modal')">Batal</button>
       <button class="btn" onclick="saveUser()">Simpan</button>
@@ -606,7 +744,10 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbz9yCgbGLqsCKWfeTtfGynNbq-k36ikDV1qKhPKG7NFWGhZ8JFwolAu2V4nRh3YzDJkeg/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwhOUWY9VPii_yzH_TSnScNZDkF7AdlnRhpFbsPzfdPiQFOFhyw23zfHnCnVOdgOSkwkA/exec";
+
+/* ===== BATAS HARI UNTUK REMINDER ===== */
+const BATAS_HARI_PERLU_DINILAI = 90; // 3 bulan
 
 const GRADE_LEVELS = { A: "Operator baru", B: "Start dan stop mesin", C: "Identifikasi masalah dan solusi", D: "Trainer" };
 const GRADE_COLORS = { A: "#f59e0b", B: "#3b82f6", C: "#22c55e", D: "#8b5cf6" };
@@ -631,6 +772,14 @@ let _lastHash = "";
 let kriteriaAdminList = [];
 let currentKriteriaArea = "";
 
+/* ========== ROLE HELPERS ========== */
+function isGuest() { return currentUser && currentUser.role === "guest"; }
+function isAdminUser() { return currentUser && currentUser.role === "admin"; }
+function blockGuest() {
+  if (isGuest()) { toast("Guest hanya bisa melihat data", true); return true; }
+  return false;
+}
+
 function toast(msg, err, type) {
   const el = document.createElement("div");
   el.className = "toast" + (err ? " error" : (type === "info" ? " info" : ""));
@@ -643,7 +792,221 @@ function gradeClass(g) { return "grade-" + String(g || "A").toLowerCase(); }
 function safeParseJSON(str) { try { return JSON.parse(str); } catch(e) { return []; } }
 function getUserTag() { return currentUser ? { user: currentUser.nama, username: currentUser.username } : { user: "unknown", username: "unknown" }; }
 
-/* LOGIN */
+function hitungSkorDariDetail(r) {
+  const skorRaw = Number(r["Skor (%)"]) || 0;
+  if (skorRaw > 0) return skorRaw;
+  if (!r["Detail Kriteria"]) return 0;
+  try {
+    const detail = typeof r["Detail Kriteria"] === "string" ? JSON.parse(r["Detail Kriteria"]) : r["Detail Kriteria"];
+    if (!detail || !detail.length) return 0;
+    const total = detail.length;
+    const lulus = detail.filter(d => d.terpenuhi).length;
+    return total > 0 ? Math.round(lulus / total * 100) : 0;
+  } catch(e) { return 0; }
+}
+function hitungPersenPerGrade(r) {
+  const pct = { A: 0, B: 0, C: 0, D: 0 };
+  const jumlah = { A: 0, B: 0, C: 0, D: 0 };
+  if (!r["Detail Kriteria"]) return { pct, jumlah };
+  const detail = safeParseJSON(r["Detail Kriteria"] || "[]");
+  const pg = { A:{t:0,l:0}, B:{t:0,l:0}, C:{t:0,l:0}, D:{t:0,l:0} };
+  detail.forEach(d => {
+    const g = String(d.grade || "A").toUpperCase();
+    if (!pg[g]) return;
+    pg[g].t++;
+    if (d.terpenuhi) pg[g].l++;
+  });
+  ["A","B","C","D"].forEach(g => {
+    pct[g] = pg[g].t > 0 ? Math.round(pg[g].l / pg[g].t * 100) : 0;
+    jumlah[g] = pg[g].t;
+  });
+  return { pct, jumlah };
+}
+
+/* ========== PARSE TIMESTAMP DARI SHEET (yyyy-MM-dd HH:mm:ss ATAU dd/MM/yyyy ATAU Date) ========== */
+function parseTimestamp(ts) {
+  if (!ts) return null;
+  const s = String(ts).trim();
+
+  // yyyy-MM-dd HH:mm:ss (format dari backend normalizer)
+  let m = s.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})/);
+  if (m) return new Date(+m[1], +m[2]-1, +m[3], +m[4], +m[5], +m[6]);
+
+  // yyyy-MM-dd saja
+  m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return new Date(+m[1], +m[2]-1, +m[3]);
+
+  // dd/MM/yyyy
+  m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+  if (m) return new Date(+m[3], +m[2]-1, +m[1]);
+
+  // fallback
+  const d = new Date(s);
+  if (!isNaN(d.getTime())) return d;
+  return null;
+}
+function hariSejak(ts) {
+  const d = parseTimestamp(ts);
+  if (!d) return null;
+  const diff = Date.now() - d.getTime();
+  return Math.floor(diff / (1000 * 60 * 60 * 24));
+}
+
+/* ========== REMINDER: hitung operator yang perlu dinilai ulang ========== */
+function hitungReminder() {
+  // Ambil penilaian TERAKHIR per NIK (tanpa memandang mesin)
+  const lastByNIK = {};
+  allData.report.forEach(r => {
+    const nik = String(r["NIK"] || "").trim();
+    if (!nik) return;
+    const ts = r["Timestamp"];
+    const d = parseTimestamp(ts);
+    if (!d) return;
+    if (!lastByNIK[nik] || d.getTime() > lastByNIK[nik].date.getTime()) {
+      lastByNIK[nik] = { date: d, timestamp: ts };
+    }
+  });
+
+  const list = [];
+  allData.personel.forEach(p => {
+    const status = p["Status"] || "Aktif";
+    if (status === "Non Aktif") return; // skip non-aktif
+    const nik  = String(p["Employee ID"] || "").trim();
+    const nama = p["Employee Name"] || "(tanpa nama)";
+    if (!nik) return;
+
+    const last = lastByNIK[nik];
+    if (!last) {
+      // Belum pernah dinilai sama sekali
+      list.push({ nik, nama, hari: null, terakhir: null });
+      return;
+    }
+
+    const diffHari = Math.floor((Date.now() - last.date.getTime()) / (1000 * 60 * 60 * 24));
+    if (diffHari >= BATAS_HARI_PERLU_DINILAI) {
+      list.push({ nik, nama, hari: diffHari, terakhir: last.date });
+    }
+  });
+
+  // Urutkan: yang paling lama di atas, yang belum pernah di paling atas
+  list.sort((a, b) => {
+    if (a.hari === null && b.hari === null) return a.nama.localeCompare(b.nama);
+    if (a.hari === null) return -1;
+    if (b.hari === null) return 1;
+    return b.hari - a.hari;
+  });
+
+  return list;
+}
+
+/* ========== GLOBAL REMINDER / TIME BOMB CONTROLS ========== */
+function toggleReminder(event) {
+  if (event) event.stopPropagation();
+  const banner = document.getElementById("reminder-banner");
+  if (!banner) return;
+  const minimized = banner.classList.toggle("minimized");
+  localStorage.setItem("reminderMinimized", minimized ? "1" : "0");
+  updateReminderMinimizeButton();
+}
+
+function updateReminderMinimizeButton() {
+  const banner = document.getElementById("reminder-banner");
+  const button = document.getElementById("reminder-minimize");
+  if (!banner || !button) return;
+  const minimized = banner.classList.contains("minimized");
+  button.textContent = minimized ? "↗" : "−";
+  button.title = minimized ? "Buka reminder" : "Minimize reminder";
+  button.setAttribute("aria-label", button.title);
+}
+
+function restoreReminderState() {
+  const banner = document.getElementById("reminder-banner");
+  if (!banner) return;
+  if (localStorage.getItem("reminderMinimized") === "1") {
+    banner.classList.add("minimized");
+  } else {
+    banner.classList.remove("minimized");
+  }
+  updateReminderMinimizeButton();
+}
+
+document.addEventListener("click", function(event) {
+  const banner = document.getElementById("reminder-banner");
+  if (!banner || !banner.classList.contains("minimized")) return;
+  if (banner.contains(event.target)) {
+    banner.classList.remove("minimized");
+    localStorage.setItem("reminderMinimized", "0");
+    updateReminderMinimizeButton();
+  }
+});
+
+/* ========== RENDER REMINDER BANNER ========== */
+function renderReminderBanner() {
+  const banner = document.getElementById("reminder-banner");
+  const title = document.getElementById("reminder-title");
+  const subtitle = document.getElementById("reminder-subtitle");
+  const chips = document.getElementById("reminder-chips");
+  if (!banner) return;
+
+  const list = hitungReminder();
+  if (!list.length) {
+    banner.classList.remove("show", "warn", "danger");
+    chips.innerHTML = "";
+    return;
+  }
+
+  // Tentukan level: danger kalau ada yang > 180 hari atau belum pernah dinilai
+  const adaDanger = list.some(item => item.hari === null || item.hari >= 180);
+  banner.classList.remove("show", "warn", "danger");
+  banner.classList.add("show", adaDanger ? "danger" : "warn");
+  restoreReminderState();
+
+  title.innerHTML = `⚠️ ${list.length} operator perlu dinilai ulang: segera lakukan penilaian`;
+
+  const jmlBelum = list.filter(i => i.hari === null).length;
+  let sub = `Batas penilaian ulang: setiap ${BATAS_HARI_PERLU_DINILAI} hari (${Math.round(BATAS_HARI_PERLU_DINILAI/30)} bulan)`;
+  if (jmlBelum > 0) sub += ` · ${jmlBelum} orang belum pernah dinilai`;
+  subtitle.textContent = sub;
+
+  chips.innerHTML = list.map(item => {
+    const label = item.hari === null
+      ? "Belum pernah dinilai"
+      : `${item.hari} hari lalu`;
+    const isGuestUser = isGuest();
+    const onclickAttr = isGuestUser ? "" : `onclick="bukaFormUntukOperator('${escapeHtml(item.nik)}')"`;
+    const titleAttr = isGuestUser
+      ? "Guest tidak bisa input nilai"
+      : `Klik untuk input nilai — ${item.nama}`;
+    return `<button type="button" class="reminder-chip" ${onclickAttr} title="${titleAttr}">
+      👤 ${escapeHtml(item.nama)}
+      <span class="days">· ${label}</span>
+    </button>`;
+  }).join("");
+}
+
+/* ========== AKSI KLIK CHIP: buka modal Input Nilai dengan operator terisi ========== */
+function bukaFormUntukOperator(nik) {
+  if (blockGuest()) return;
+  if (!currentUser) return;
+
+  // Buka modal
+  openFormModal();
+
+  // Set operator
+  const empSel = document.getElementById("form-employee");
+  empSel.value = nik;
+  onEmployeeChange();
+
+  // Scroll ke atas modal supaya kelihatan formnya
+  const modalBox = document.querySelector("#form-modal .modal");
+  if (modalBox) modalBox.scrollTop = 0;
+
+  toast(`Silakan pilih Area & Mesin untuk ${escapeHtml(nik)}`, false, "info");
+}
+
+restoreReminderState();
+
+/* ========== LOGIN ========== */
 document.getElementById("login-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const btn = document.getElementById("login-btn");
@@ -658,6 +1021,11 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
     const data = await res.json();
     if (!data.ok) { err.textContent = data.message || "Login gagal"; btn.disabled = false; btn.textContent = "Masuk"; return; }
     currentUser = data.user;
+    if (currentUser.role) currentUser.role = String(currentUser.role).toLowerCase();
+    if (!currentUser.role && currentUser.posisi) {
+      const p = String(currentUser.posisi).toLowerCase();
+      currentUser.role = p === "admin" ? "admin" : (p === "guest" ? "guest" : "assessor");
+    }
     sessionStorage.setItem("user", JSON.stringify(currentUser));
     masukDashboard();
   } catch (error) {
@@ -667,27 +1035,41 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
   }
 });
 
+/* ========== MASUK SEBAGAI GUEST ========== */
+function masukSebagaiGuest() {
+  currentUser = { nama: "Guest", username: "guest", posisi: "Guest", role: "guest" };
+  sessionStorage.setItem("user", JSON.stringify(currentUser));
+  masukDashboard();
+}
+
 function masukDashboard() {
   document.getElementById("login-screen").style.display = "none";
   document.getElementById("dashboard-shell").style.display = "flex";
-  document.getElementById("profile-chip").textContent = `👤 ${currentUser.nama} (${currentUser.role === "admin" ? "Admin" : "Assessor"})`;
+  const roleLabel = currentUser.role === "admin" ? "Admin" : (currentUser.role === "guest" ? "Guest" : "Assessor");
+  document.getElementById("profile-chip").textContent = `👤 ${currentUser.nama} (${roleLabel})`;
   applyPermissions();
   muatSemuaData();
 }
 function applyPermissions() {
-  const isAdmin = currentUser && currentUser.role === "admin";
+  const role = currentUser ? currentUser.role : "";
+  const isAdmin = role === "admin";
+  const isGuestUser = role === "guest";
   document.querySelectorAll("[data-admin-only]").forEach(el => el.style.display = isAdmin ? "" : "none");
+  if (isGuestUser) {
+    document.querySelectorAll("[data-write-action]").forEach(el => el.style.display = "none");
+    document.body.classList.add("guest-mode");
+  } else {
+    document.body.classList.remove("guest-mode");
+  }
 }
 async function logout() {
   const tag = getUserTag();
-  try {
-    await fetch(API_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "logout", data: tag }) });
-  } catch(e) {}
+  try { await fetch(API_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "logout", data: tag }) }); } catch(e) {}
   sessionStorage.removeItem("user");
   location.reload();
 }
 
-/* LOAD DATA */
+/* ========== LOAD DATA ========== */
 async function muatSemuaData() {
   try {
     const [resAll, resArea] = await Promise.all([fetch(API_URL + "?action=getAll"), fetch(API_URL + "?action=getMasterArea")]);
@@ -697,6 +1079,7 @@ async function muatSemuaData() {
     allData.personel = data.personel || [];
     allData.report = data.report || [];
     allData.mesin = data.mesin || {};
+    allData.totalMesin = data.totalMesin || 0;
     areaList = (dataArea.area || []);
     mesinList = [];
     Object.entries(allData.mesin).forEach(([area, arr]) => arr.forEach(m => mesinList.push({ area, mesin: m })));
@@ -706,6 +1089,7 @@ async function muatSemuaData() {
     renderAll();
     renderTop10();
     renderGrafikAlat();
+    renderReminderBanner();
     if (detailOperatorNIK) renderDetailOperator();
     _lastHash = hashData();
   } catch (e) { console.error(e); toast("Gagal memuat data: " + e.message, true); }
@@ -741,7 +1125,7 @@ function isiAreaDropdown() {
   if (selF) selF.innerHTML = '<option value="">— Pilih Area —</option>' + Object.keys(allData.mesin).map(a => `<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`).join("");
 }
 
-/* RENDER ALL */
+/* ========== RENDER ALL ========== */
 function renderAll() {
   const rows = allData.report;
   renderKpi(rows);
@@ -755,37 +1139,64 @@ function renderAll() {
   renderUser();
   if (detailOperatorNIK) renderDetailOperator();
   renderGrafikAlat();
+  renderReminderBanner();
 }
 
+/* ✅ KPI: Total Employee (master) + Total Dinilai (NIK×Mesin) + Distribusi Grade (NIK×Mesin) */
 function renderKpi(rows) {
-  document.getElementById("kpi-employee-value").textContent = allData.personel.length;
-  document.getElementById("kpi-machine-value").textContent = rows.length;
   const gradeOrder = { "A": 1, "B": 2, "C": 3, "D": 4 };
-  const gradePerNIK = {};
+  document.getElementById("kpi-employee-value").textContent = allData.personel.length;
+
+  const mapPenilaian = {};
   rows.forEach(r => {
-    const nik = String(r["NIK"] || "").trim();
-    const gf = String(r["Grade Final"] || "").toUpperCase();
-    if (!nik || !gradeOrder[gf]) return;
-    if (!gradePerNIK[nik] || gradeOrder[gf] > gradeOrder[gradePerNIK[nik]]) gradePerNIK[nik] = gf;
+    const nik   = String(r["NIK"]   || "").trim();
+    const area  = String(r["Area"]  || "").trim() || "-";
+    const mesin = String(r["Mesin"] || "").trim();
+    const gf    = String(r["Grade Final"] || "").toUpperCase();
+    if (!nik || !mesin || !gradeOrder[gf]) return;
+    const key = nik + "||" + area + "||" + mesin;
+    if (!mapPenilaian[key] || gradeOrder[gf] > gradeOrder[mapPenilaian[key]]) {
+      mapPenilaian[key] = gf;
+    }
   });
-  document.getElementById("kpi-grade-a-value").textContent = Object.values(gradePerNIK).filter(g => g === "A").length;
-  document.getElementById("kpi-grade-d-value").textContent = Object.values(gradePerNIK).filter(g => g === "D").length;
-  const mesinSet = new Set();
-  Object.values(allData.mesin || {}).forEach(arr => arr.forEach(m => mesinSet.add(m)));
-  document.getElementById("kpi-gap-value").textContent = mesinSet.size;
+  const entries = Object.values(mapPenilaian);
+  document.getElementById("kpi-dinilai-value").textContent = entries.length;
+
+  const dist = { A: 0, B: 0, C: 0, D: 0 };
+  entries.forEach(g => { if (dist.hasOwnProperty(g)) dist[g]++; });
+  document.getElementById("kpi-grade-a-value").textContent = dist.A;
+  document.getElementById("kpi-grade-b-value").textContent = dist.B;
+  document.getElementById("kpi-grade-c-value").textContent = dist.C;
+  document.getElementById("kpi-grade-d-value").textContent = dist.D;
+
+  let totalMesin = Number(allData.totalMesin) || 0;
+  if (!totalMesin) {
+    const setMesin = new Set();
+    Object.values(allData.mesin || {}).forEach(arr => {
+      (arr || []).forEach(m => {
+        const nama = String(m || "").trim();
+        if (nama) setMesin.add(nama);
+      });
+    });
+    totalMesin = setMesin.size;
+  }
+  document.getElementById("kpi-machine-value").textContent = totalMesin;
 }
 
 function renderDistribusi(rows) {
   const gradeOrder = { "A": 1, "B": 2, "C": 3, "D": 4 };
-  const gradePerNIK = {};
+  const mapPenilaian = {};
   rows.forEach(r => {
-    const nik = String(r["NIK"] || "").trim();
-    const gf = String(r["Grade Final"] || "").toUpperCase();
-    if (!nik || !gradeOrder[gf]) return;
-    if (!gradePerNIK[nik] || gradeOrder[gf] > gradeOrder[gradePerNIK[nik]]) gradePerNIK[nik] = gf;
+    const nik   = String(r["NIK"]   || "").trim();
+    const area  = String(r["Area"]  || "").trim() || "-";
+    const mesin = String(r["Mesin"] || "").trim();
+    const gf    = String(r["Grade Final"] || "").toUpperCase();
+    if (!nik || !mesin || !gradeOrder[gf]) return;
+    const key = nik + "||" + area + "||" + mesin;
+    if (!mapPenilaian[key] || gradeOrder[gf] > gradeOrder[mapPenilaian[key]]) mapPenilaian[key] = gf;
   });
   const dist = { A: 0, B: 0, C: 0, D: 0 };
-  Object.values(gradePerNIK).forEach(g => { dist[g]++; });
+  Object.values(mapPenilaian).forEach(g => { if (dist.hasOwnProperty(g)) dist[g]++; });
   const total = Object.values(dist).reduce((a, b) => a + b, 0) || 1;
   ["A","B","C","D"].forEach(g => {
     const p = Math.round(dist[g] / total * 100);
@@ -838,7 +1249,8 @@ function renderEmployee() {
   if (!tb) return;
   const q = (document.getElementById("personel-search")?.value || "").toLowerCase();
   const sf = (document.getElementById("personel-status-filter")?.value || "");
-  const isAdmin = currentUser && currentUser.role === "admin";
+  const isAdmin = isAdminUser();
+  const isGuestUser = isGuest();
   let list = allData.personel.slice();
   if (q) list = list.filter(p => `${p["Employee ID"]||""} ${p["Employee Name"]||""} ${p["Job Title Name"]||""} ${p["Organization Name"]||""}`.toLowerCase().includes(q));
   if (sf) list = list.filter(p => (p["Status"] || "Aktif") === sf);
@@ -847,6 +1259,17 @@ function renderEmployee() {
     const status = p["Status"] || "Aktif";
     const isNonAktif = status === "Non Aktif";
     const id = String(p["Employee ID"] || "");
+    const aksiCol = isGuestUser ? "" : `<td style="white-space:nowrap">
+        <button class="btn btn-sm" onclick="bukaRaport('${escapeHtml(id)}')" style="background:#0891b2">📘 Raport</button>
+        ${isAdmin ? `
+          <button class="btn btn-sm" onclick="editPersonel('${escapeHtml(id)}')" style="background:#eef2f7;color:#334155">Edit</button>
+          ${isNonAktif
+            ? `<button class="btn btn-sm" onclick="setStatus('${escapeHtml(id)}','Aktif')" style="background:#16a34a">Aktifkan</button>`
+            : `<button class="btn btn-sm" onclick="setStatus('${escapeHtml(id)}','Non Aktif')" style="background:#f59e0b">Non Aktifkan</button>`
+          }
+          <button class="btn btn-sm btn-danger" onclick="deletePersonel('${escapeHtml(id)}')">Hapus</button>
+        ` : ""}
+      </td>`;
     return `
     <tr style="${isNonAktif ? 'opacity:.6' : ''}">
       <td>${i+1}</td>
@@ -858,17 +1281,7 @@ function renderEmployee() {
       <td>${escapeHtml(p["Gender"])}</td>
       <td>${escapeHtml(p["Start Date"])}</td>
       <td><span class="status-pill ${isNonAktif?'status-nonaktif':'status-aktif'}">${escapeHtml(status)}</span></td>
-      <td style="white-space:nowrap">
-        <button class="btn btn-sm" onclick="bukaRaport('${escapeHtml(id)}')" style="background:#0891b2">📘 Raport</button>
-        ${isAdmin ? `
-          <button class="btn btn-sm" onclick="editPersonel('${escapeHtml(id)}')" style="background:#eef2f7;color:#334155">Edit</button>
-          ${isNonAktif
-            ? `<button class="btn btn-sm" onclick="setStatus('${escapeHtml(id)}','Aktif')" style="background:#16a34a">Aktifkan</button>`
-            : `<button class="btn btn-sm" onclick="setStatus('${escapeHtml(id)}','Non Aktif')" style="background:#f59e0b">Non Aktifkan</button>`
-          }
-          <button class="btn btn-sm btn-danger" onclick="deletePersonel('${escapeHtml(id)}')">Hapus</button>
-        ` : ""}
-      </td>
+      ${isGuestUser ? "" : aksiCol}
     </tr>`;
   }).join("");
 }
@@ -930,54 +1343,114 @@ function renderMatrix(rows) {
 
 function renderHistory(rows) {
   const tb = document.getElementById("history-table-body");
-  const isAdmin = currentUser && currentUser.role === "admin";
-  if (!rows.length) { tb.innerHTML = `<tr><td colspan="${isAdmin?10:9}" class="empty-row">Belum ada riwayat.</td></tr>`; return; }
-  tb.innerHTML = rows.slice(0, 200).map(r => `
+  const isAdmin = isAdminUser();
+  if (!rows.length) { tb.innerHTML = `<tr><td colspan="${isAdmin?9:8}" class="empty-row">Belum ada riwayat.</td></tr>`; return; }
+  tb.innerHTML = rows.slice(0, 200).map(r => {
+    const skor = hitungSkorDariDetail(r);
+    return `
     <tr>
       <td>${escapeHtml(r["Timestamp"])}</td>
       <td>${escapeHtml(r["NIK"])}</td>
       <td class="employee-name">${escapeHtml(r["Nama"])}</td>
       <td>${escapeHtml(r["Area"])}</td>
       <td>${escapeHtml(r["Mesin"])}</td>
-      <td>${r["Item Lulus"]||0}/${r["Total Item"]||0}</td>
-      <td>${r["Skor (%)"]||0}%</td>
+      <td>${skor}%</td>
       <td><span class="grade-badge ${gradeClass(r["Grade Final"])}">${escapeHtml(r["Grade Final"])}</span></td>
       <td>${escapeHtml(r["Assessor"])}</td>
       ${isAdmin ? `<td><button class="btn btn-sm btn-danger" onclick="hapusReport('${escapeHtml(r["Timestamp"])}')">Hapus</button></td>` : ""}
-    </tr>`).join("");
+    </tr>`;
+  }).join("");
   renderCharts(rows);
 }
 
 function renderCharts(rows) {
   const gradeOrder = { "A": 1, "B": 2, "C": 3, "D": 4 };
-  const gradePerNIK = {};
+  const mapPenilaian = {};
   rows.forEach(r => {
-    const nik = String(r["NIK"] || "").trim();
-    const gf = String(r["Grade Final"] || "").toUpperCase();
-    if (!nik || !gradeOrder[gf]) return;
-    if (!gradePerNIK[nik] || gradeOrder[gf] > gradeOrder[gradePerNIK[nik]]) gradePerNIK[nik] = gf;
+    const nik   = String(r["NIK"]   || "").trim();
+    const area  = String(r["Area"]  || "").trim() || "-";
+    const mesin = String(r["Mesin"] || "").trim();
+    const gf    = String(r["Grade Final"] || "").toUpperCase();
+    if (!nik || !mesin || !gradeOrder[gf]) return;
+    const key = nik + "||" + area + "||" + mesin;
+    if (!mapPenilaian[key] || gradeOrder[gf] > gradeOrder[mapPenilaian[key]]) mapPenilaian[key] = gf;
   });
   const dist = { A: 0, B: 0, C: 0, D: 0 };
-  Object.values(gradePerNIK).forEach(g => { dist[g]++; });
+  Object.values(mapPenilaian).forEach(g => { if (dist.hasOwnProperty(g)) dist[g]++; });
+  const total = Object.values(dist).reduce((a, b) => a + b, 0) || 1;
+  const pct = {
+    A: Math.round(dist.A / total * 100),
+    B: Math.round(dist.B / total * 100),
+    C: Math.round(dist.C / total * 100),
+    D: Math.round(dist.D / total * 100)
+  };
   if (charts.dist) charts.dist.destroy();
   const c1 = document.getElementById("chart-distribution");
   if (c1) charts.dist = new Chart(c1, {
     type: "doughnut",
-    data: { labels:["A","B","C","D"], datasets:[{ data:[dist.A,dist.B,dist.C,dist.D], backgroundColor:["#f59e0b","#3b82f6","#22c55e","#8b5cf6"] }] },
-    options: { plugins: { legend: { position: "bottom" } }, responsive: true }
+    data: {
+      labels: [
+        `Grade A · ${pct.A}% (${dist.A})`,
+        `Grade B · ${pct.B}% (${dist.B})`,
+        `Grade C · ${pct.C}% (${dist.C})`,
+        `Grade D · ${pct.D}% (${dist.D})`
+      ],
+      datasets: [{ data: [dist.A, dist.B, dist.C, dist.D], backgroundColor: ["#f59e0b", "#3b82f6", "#22c55e", "#8b5cf6"], borderWidth: 2, borderColor: "#fff" }]
+    },
+    options: {
+      responsive: true, cutout: "60%",
+      plugins: {
+        legend: { position: "bottom", labels: { font: { family: "Work Sans", size: 12, weight: "600" }, padding: 12, usePointStyle: true, pointStyle: "circle" } },
+        tooltip: { backgroundColor: "#172033", padding: 12, cornerRadius: 8, callbacks: { label: (ctx) => `  ${ctx.label}` } }
+      }
+    }
   });
-  const total = Object.values(dist).reduce((a, b) => a + b, 0);
-  const belum = total - dist.A;
+
   if (charts.trend) charts.trend.destroy();
   const c2 = document.getElementById("chart-trend");
   if (c2) charts.trend = new Chart(c2, {
     type: "bar",
-    data: { labels:["Grade A","B/C/D"], datasets:[{ label:"Jumlah Personel", data:[dist.A, belum], backgroundColor:["#16a34a","#dc2626"] }] },
-    options: { plugins: { legend: { display: false } }, responsive: true }
+    data: {
+      labels: ["Grade A", "Grade B", "Grade C", "Grade D"],
+      datasets: [{
+        label: "Jumlah Kombinasi (NIK × Mesin)",
+        data: [dist.A, dist.B, dist.C, dist.D],
+        backgroundColor: ["#f59e0b", "#3b82f6", "#22c55e", "#8b5cf6"],
+        borderRadius: 8,
+        barThickness: 60
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: "#172033", padding: 12, cornerRadius: 8,
+          callbacks: {
+            label: (ctx) => {
+              const val = ctx.parsed.y;
+              const p = Math.round(val / total * 100);
+              return `  ${val} kombinasi (${p}%)`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: "#eef2f7" },
+          ticks: { precision: 0, font: { family: "Work Sans", size: 11 } }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { font: { family: "Work Sans", size: 12, weight: "600" } }
+        }
+      }
+    }
   });
 }
 
-/* GRAFIK TOP 5 ALAT */
+/* ========== GRAFIK TOP 5 ALAT ========== */
 function renderGrafikAlat() {
   const container = document.getElementById("grafik-alat-content");
   if (!container) return;
@@ -986,20 +1459,19 @@ function renderGrafikAlat() {
   let reports = allData.report.slice();
   if (filterGrade) reports = reports.filter(r => r["Grade Final"] === filterGrade);
   if (filterArea)  reports = reports.filter(r => r["Area"] === filterArea);
+
   const byMesin = {};
   reports.forEach(r => {
     const mesin = r["Mesin"] || "-";
     const area  = r["Area"] || "-";
     const nik   = String(r["NIK"] || "").trim();
-    if (!nik) return;
+    const gf    = String(r["Grade Final"] || "").toUpperCase();
+    if (!nik || !["A","B","C","D"].includes(gf)) return;
     if (!byMesin[mesin]) byMesin[mesin] = { mesin, area, niks: new Set() };
-    byMesin[mesin].niks.add(nik);
+    byMesin[mesin].niks.add(nik + "||" + area);
   });
   const list = Object.values(byMesin).map(m => ({ mesin: m.mesin, area: m.area, jumlah: m.niks.size })).sort((a, b) => b.jumlah - a.jumlah).slice(0, 5);
-  if (!list.length) {
-    container.innerHTML = `<div class="empty-row" style="text-align:center;padding:40px;color:#64748b">Belum ada data penilaian untuk filter ini</div>`;
-    return;
-  }
+  if (!list.length) { container.innerHTML = `<div class="empty-row" style="text-align:center;padding:40px;color:#64748b">Belum ada data penilaian untuk filter ini</div>`; return; }
   const maxJumlah = list[0].jumlah || 1;
   const barColors = [
     { grad: "linear-gradient(90deg,#fbbf24,#f59e0b)", solid: "#f59e0b" },
@@ -1009,7 +1481,7 @@ function renderGrafikAlat() {
     { grad: "linear-gradient(90deg,#f472b6,#ec4899)", solid: "#ec4899" }
   ];
   container.innerHTML = '<div style="display:flex;flex-direction:column;gap:12px">' + list.map((item, i) => {
-    const pct = Math.round(item.jumlah / maxJumlah * 100);
+    const pctVal = Math.round(item.jumlah / maxJumlah * 100);
     const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "#" + (i+1);
     const bc = barColors[i] || barColors[4];
     return `
@@ -1019,14 +1491,23 @@ function renderGrafikAlat() {
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:18px">⚙️</span><span style="font-weight:700;font-size:16px;color:#172033">${escapeHtml(item.mesin)}</span></div>
           <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
             <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#64748b;font-weight:600;background:#f1f5f9;padding:3px 10px;border-radius:20px">📍 ${escapeHtml(item.area)}</span>
-            <div style="flex:1;min-width:100px;height:8px;background:#eef2f7;border-radius:999px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${bc.grad};border-radius:999px"></div></div>
+            <div style="flex:1;min-width:100px;height:8px;background:#eef2f7;border-radius:999px;overflow:hidden"><div style="height:100%;width:${pctVal}%;background:${bc.grad};border-radius:999px"></div></div>
           </div>
         </div>
         <div style="text-align:right;white-space:nowrap"><div style="font-size:26px;font-weight:700;color:${bc.solid};line-height:1.1">${item.jumlah}</div><div style="font-size:10px;color:#64748b;font-weight:700;letter-spacing:.05em">PERSONEL</div></div>
       </div>`;
   }).join("") + '</div>';
+
+  const setPenilaian = new Set();
+  reports.forEach(r => {
+    const n = String(r["NIK"]||"").trim();
+    const a = String(r["Area"]||"").trim() || "-";
+    const m = String(r["Mesin"]||"").trim();
+    const g = String(r["Grade Final"]||"").toUpperCase();
+    if (n && m && ["A","B","C","D"].includes(g)) setPenilaian.add(n + "||" + a + "||" + m);
+  });
   const totalMesin = Object.keys(byMesin).length;
-  const totalPersonel = new Set(reports.map(r => r["NIK"])).size;
+  const totalPersonel = setPenilaian.size;
   container.innerHTML += `
     <div style="margin-top:16px;padding:14px 18px;background:linear-gradient(135deg,#f8fafc,#eff6ff);border:1px solid #e7edf5;border-radius:12px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:12px;color:#475569">
       <span>📊 Total: <strong>${totalMesin}</strong> mesin · <strong>${totalPersonel}</strong> personel dinilai</span>
@@ -1034,36 +1515,25 @@ function renderGrafikAlat() {
     </div>`;
 }
 
-/* TOP 10 */
+/* ========== TOP 10 — per NIK × Area × Mesin ========== */
 function getTop10ForGrade(grade) {
-  const byNIK = {};
   const gradeOrder = { "A": 1, "B": 2, "C": 3, "D": 4 };
+  const mapPenilaian = {};
   allData.report.forEach(r => {
-    const nik = String(r["NIK"] || "").trim();
-    if (!nik) return;
-    const gf = String(r["Grade Final"] || "").toUpperCase();
-    if (!gf || gf === "-" || !gradeOrder[gf]) return;
-    const skor = Number(r["Skor (%)"]) || 0;
-    if (!byNIK[nik]) byNIK[nik] = { nik, nama: r["Nama"] || "-", jabatan: r["Jabatan"] || "-", line: r["Line"] || "-", area: r["Area"] || "-", mesin: r["Mesin"] || "-", skor, gradeTertinggi: gf };
-    else {
-      const co = gradeOrder[byNIK[nik].gradeTertinggi];
-      const no = gradeOrder[gf];
-      if (no > co) {
-        byNIK[nik].gradeTertinggi = gf;
-        byNIK[nik].nama = r["Nama"] || byNIK[nik].nama;
-        byNIK[nik].jabatan = r["Jabatan"] || byNIK[nik].jabatan;
-        byNIK[nik].line = r["Line"] || byNIK[nik].line;
-        byNIK[nik].area = r["Area"] || byNIK[nik].area;
-        byNIK[nik].mesin = r["Mesin"] || byNIK[nik].mesin;
-        byNIK[nik].skor = skor;
-      } else if (no === co && skor > byNIK[nik].skor) {
-        byNIK[nik].skor = skor;
-        byNIK[nik].mesin = r["Mesin"] || byNIK[nik].mesin;
-        byNIK[nik].area = r["Area"] || byNIK[nik].area;
-      }
+    const nik   = String(r["NIK"]   || "").trim();
+    const area  = String(r["Area"]  || "").trim() || "-";
+    const mesin = String(r["Mesin"] || "").trim();
+    const gf    = String(r["Grade Final"] || "").toUpperCase();
+    if (!nik || !mesin || !gradeOrder[gf]) return;
+    const key = nik + "||" + area + "||" + mesin;
+    const skor = hitungSkorDariDetail(r);
+    if (!mapPenilaian[key] || gradeOrder[gf] > gradeOrder[mapPenilaian[key].grade]) {
+      mapPenilaian[key] = { nik, nama: r["Nama"]||"-", jabatan: r["Jabatan"]||"-", line: r["Line"]||"-", area, mesin, skor, grade: gf };
+    } else if (gradeOrder[gf] === gradeOrder[mapPenilaian[key].grade] && skor > mapPenilaian[key].skor) {
+      mapPenilaian[key].skor = skor;
     }
   });
-  return Object.values(byNIK).filter(i => i.gradeTertinggi === grade).sort((a, b) => b.skor - a.skor).slice(0, 10);
+  return Object.values(mapPenilaian).filter(i => i.grade === grade).sort((a, b) => b.skor - a.skor).slice(0, 10);
 }
 
 function renderTop10() {
@@ -1142,7 +1612,7 @@ function switchTop10Detail(grade) {
   renderTop10Detail(dataPerGrade);
 }
 
-/* DETAIL OPERATOR */
+/* ========== DETAIL OPERATOR ========== */
 function cariOperatorDetail() {
   const q = (document.getElementById("detail-op-search").value || "").toLowerCase().trim();
   const suggest = document.getElementById("detail-op-suggest");
@@ -1158,6 +1628,7 @@ function pilihOperatorDetail(nik) {
   document.getElementById("detail-op-suggest").innerHTML = "";
   renderDetailOperator();
 }
+
 function renderDetailOperator() {
   const container = document.getElementById("detail-operator-content");
   if (!container) return;
@@ -1213,7 +1684,18 @@ function renderDetailOperator() {
   for (const g of orderDesc) { const s = gradeStats[g]; if (s.total > 0 && s.lulus === s.total) { gradeFinal = g; break; } }
   const gradeFinalColor = gradeFinal !== "-" ? gradeColors[gradeFinal] : "#94a3b8";
   const totalPenilaian = mesinList.length;
-  const rataSkor = mesinList.length ? Math.round(mesinList.reduce((s,m)=>s+(Number(m["Skor (%)"])||0),0)/mesinList.length) : 0;
+
+  let totalSkorMesin = 0, countMesin = 0;
+  mesinList.forEach(r => {
+    const { pct, jumlah } = hitungPersenPerGrade(r);
+    const gradesAktif = ["A","B","C","D"].filter(g => jumlah[g] > 0);
+    if (gradesAktif.length === 0) return;
+    const skorMesin = Math.round(gradesAktif.reduce((sum, g) => sum + pct[g], 0) / gradesAktif.length);
+    totalSkorMesin += skorMesin;
+    countMesin++;
+  });
+  const rataSkor = countMesin > 0 ? Math.round(totalSkorMesin / countMesin) : 0;
+
   container.innerHTML = `
     <div class="detail-operator-header" style="align-items:flex-start">
       <div class="detail-op-avatar">${inisial}</div>
@@ -1233,7 +1715,9 @@ function renderDetailOperator() {
       : `<div style="font-size:12px;font-weight:700;color:#64748b;letter-spacing:.05em;text-transform:uppercase;margin-bottom:10px">Mesin yang Dikuasai (${mesinList.length} unit)</div>
         <div class="mesin-list">${mesinList.map(m => {
           const gf = m["Grade Final"] || "-";
-          const skor = Number(m["Skor (%)"]) || 0;
+          const { pct, jumlah } = hitungPersenPerGrade(m);
+          const gradesAktif = ["A","B","C","D"].filter(g => jumlah[g] > 0);
+          const skor = gradesAktif.length > 0 ? Math.round(gradesAktif.reduce((sum, g) => sum + pct[g], 0) / gradesAktif.length) : 0;
           return `<div class="mesin-item">
               <div><div class="mesin-item-title">⚙️ ${escapeHtml(m["Mesin"])}</div><div class="mesin-item-meta">📍 Area: <strong>${escapeHtml(m["Area"])}</strong> · 📅 ${escapeHtml(String(m["Timestamp"]).slice(0,10))} · 👤 ${escapeHtml(m["Assessor"]||"-")}</div></div>
               <div class="mesin-item-right"><span class="grade-badge ${gradeClass(gf)}" style="font-size:12px;padding:6px 14px">Grade ${gf}</span><div style="font-size:11px;color:#64748b;margin-top:6px;font-weight:600">${skor}%</div></div>
@@ -1241,7 +1725,7 @@ function renderDetailOperator() {
         }).join("")}</div>`}`;
 }
 
-/* RAPORT */
+/* ========== RAPORT ========== */
 function cariKaryawanRaport() {
   const q = (document.getElementById("raport-search").value || "").toLowerCase().trim();
   const suggest = document.getElementById("raport-search-suggest");
@@ -1281,51 +1765,41 @@ function renderRaport() {
   if (filterMesin) raportData = raportData.filter(r => r["Mesin"] === filterMesin);
   raportData.sort((a, b) => String(b["Timestamp"]).localeCompare(String(a["Timestamp"])));
   const inisial = emp["Employee Name"].split(" ").map(n => n[0]).join("").slice(0,2).toUpperCase();
-  header.innerHTML = `<div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
-      <div style="width:64px;height:64px;background:#eff6ff;border-radius:16px;display:grid;place-items:center;font-size:22px;font-weight:700;color:#2563eb">${inisial}</div>
-      <div><h2 style="margin:0 0 4px;font-size:20px">${escapeHtml(emp["Employee Name"])}</h2><div style="font-size:13px;color:#64748b">NIK: <strong>${escapeHtml(emp["Employee ID"])}</strong> · ${escapeHtml(emp["Job Title Name"]||"-")} · ${escapeHtml(emp["Organization Name"]||"-")}</div></div>
-      <div style="margin-left:auto;display:flex;gap:20px;flex-wrap:wrap">
-        <div style="text-align:center"><div style="font-size:11px;color:#64748b;font-weight:700">TOTAL PENILAIAN</div><div style="font-size:24px;font-weight:700;color:#172033">${raportData.length}</div></div>
-        <div style="text-align:center"><div style="font-size:11px;color:#64748b;font-weight:700">RATA-RATA SKOR</div><div style="font-size:24px;font-weight:700;color:#172033">${raportData.length ? Math.round(raportData.reduce((s,r)=>s+(Number(r["Skor (%)"])||0),0)/raportData.length) : 0}%</div></div>
-      </div>
-    </div>`;
-  if (!raportData.length) { content.innerHTML = '<div class="empty-row" style="padding:40px;text-align:center;color:#64748b">Belum ada penilaian untuk filter ini</div>'; return; }
+
   const latestByMesin = {};
   raportData.forEach(r => {
     const key = r["Area"] + "|" + r["Mesin"];
     if (!latestByMesin[key]) latestByMesin[key] = r;
     else if (String(r["Timestamp"]) > String(latestByMesin[key]["Timestamp"])) latestByMesin[key] = r;
   });
-  content.innerHTML = '<div class="raport-timeline">' + Object.values(latestByMesin).map(r => {
-    const skor = Number(r["Skor (%)"]) || 0;
+  const latestList = Object.values(latestByMesin);
+
+  header.innerHTML = `<div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+      <div style="width:64px;height:64px;background:#eff6ff;border-radius:16px;display:grid;place-items:center;font-size:22px;font-weight:700;color:#2563eb">${inisial}</div>
+      <div><h2 style="margin:0 0 4px;font-size:20px">${escapeHtml(emp["Employee Name"])}</h2><div style="font-size:13px;color:#64748b">NIK: <strong>${escapeHtml(emp["Employee ID"])}</strong> · ${escapeHtml(emp["Job Title Name"]||"-")} · ${escapeHtml(emp["Organization Name"]||"-")}</div></div>
+      <div style="margin-left:auto;display:flex;gap:20px;flex-wrap:wrap">
+        <div style="text-align:center"><div style="font-size:11px;color:#64748b;font-weight:700">TOTAL PENILAIAN</div><div style="font-size:24px;font-weight:700;color:#172033">${raportData.length}</div></div>
+      </div>
+    </div>`;
+  if (!raportData.length) { content.innerHTML = '<div class="empty-row" style="padding:40px;text-align:center;color:#64748b">Belum ada penilaian untuk filter ini</div>'; return; }
+  content.innerHTML = '<div class="raport-timeline">' + latestList.map(r => {
     const gradeFinal = r["Grade Final"] || "-";
-    let pctA = 0, pctB = 0, pctC = 0, pctD = 0;
-    if (r["Detail Kriteria"]) {
-      const detail = safeParseJSON(r["Detail Kriteria"] || "[]");
-      if (detail.length > 0) {
-        const pg = { A:{t:0,l:0}, B:{t:0,l:0}, C:{t:0,l:0}, D:{t:0,l:0} };
-        detail.forEach(d => {
-          const g = String(d.grade || "A").toUpperCase();
-          if (!pg[g]) return;
-          pg[g].t++;
-          if (d.terpenuhi) pg[g].l++;
-        });
-        pctA = pg.A.t > 0 ? Math.round(pg.A.l/pg.A.t*100) : 0;
-        pctB = pg.B.t > 0 ? Math.round(pg.B.l/pg.B.t*100) : 0;
-        pctC = pg.C.t > 0 ? Math.round(pg.C.l/pg.C.t*100) : 0;
-        pctD = pg.D.t > 0 ? Math.round(pg.D.l/pg.D.t*100) : 0;
-      }
-    }
+    const { pct, jumlah } = hitungPersenPerGrade(r);
+    const gradesAktif = ["A","B","C","D"].filter(g => jumlah[g] > 0);
+    const rataRata = gradesAktif.length > 0 ? Math.round(gradesAktif.reduce((sum, g) => sum + pct[g], 0) / gradesAktif.length) : 0;
     const grades = [
-      { letter: "A", label: GRADE_LEVELS["A"], pct: pctA },
-      { letter: "B", label: GRADE_LEVELS["B"], pct: pctB },
-      { letter: "C", label: GRADE_LEVELS["C"], pct: pctC },
-      { letter: "D", label: GRADE_LEVELS["D"], pct: pctD }
+      { letter: "A", label: GRADE_LEVELS["A"], pct: pct.A },
+      { letter: "B", label: GRADE_LEVELS["B"], pct: pct.B },
+      { letter: "C", label: GRADE_LEVELS["C"], pct: pct.C },
+      { letter: "D", label: GRADE_LEVELS["D"], pct: pct.D }
     ];
     return `<div class="raport-card">
         <div class="raport-card-header">
           <div><div class="raport-card-title"><span style="font-size:16px">⚙️</span> ${escapeHtml(r["Mesin"])}</div><div class="raport-card-meta">📍 ${escapeHtml(r["Area"])} · 📅 ${escapeHtml(String(r["Timestamp"]).slice(0,16))} · 👤 ${escapeHtml(r["Assessor"]||"-")}</div></div>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span style="font-size:12px;color:#64748b;font-weight:600">Skor: ${skor}%</span><span class="grade-badge ${gradeClass(gradeFinal)}">Grade ${gradeFinal}</span></div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <span style="font-size:12px;color:#64748b;font-weight:600">Rata-rata: ${rataRata}%</span>
+            <span class="grade-badge ${gradeClass(gradeFinal)}">Grade ${gradeFinal}</span>
+          </div>
         </div>
         <div style="margin-top:16px">
           ${grades.map(g => {
@@ -1341,7 +1815,7 @@ function renderRaport() {
   }).join("") + '</div>';
 }
 
-/* KRITERIA ADMIN */
+/* ========== KRITERIA ADMIN ========== */
 async function loadKriteriaAdmin() {
   const area = document.getElementById("kriteria-area-filter").value;
   currentKriteriaArea = area;
@@ -1359,21 +1833,23 @@ async function loadKriteriaAdmin() {
     btnTambah.disabled = false;
     info.textContent = `${kriteriaAdminList.length} item penilaian di area ${area}`;
     if (!kriteriaAdminList.length) { tb.innerHTML = '<tr><td colspan="5" class="empty-row">Belum ada item. Klik "+ Tambah Item" untuk menambahkan.</td></tr>'; return; }
-    const canDelete = currentUser && currentUser.role === "admin";
+    const canDelete = isAdminUser();
+    const showAksi = !isGuest();
     tb.innerHTML = kriteriaAdminList.map((k, i) => `
       <tr>
         <td>${i+1}</td>
         <td><span class="grade-badge ${gradeClass(k.grade)}">${k.grade}</span></td>
         <td><span class="kat-badge kat-${k.kategori === '-' ? '-' : k.kategori}">${escapeHtml(k.kategori)}</span></td>
         <td>${escapeHtml(k.item)}</td>
-        <td style="text-align:right;white-space:nowrap">
+        ${showAksi ? `<td style="text-align:right;white-space:nowrap">
           <button class="btn btn-sm" onclick="editKriteria(${i})" style="background:#eef2f7;color:#334155">✏️ Edit</button>
           ${canDelete ? `<button class="btn btn-sm btn-danger" onclick="hapusKriteria(${i})">🗑 Hapus</button>` : ""}
-        </td>
+        </td>` : ""}
       </tr>`).join("");
   } catch (e) { tb.innerHTML = `<tr><td colspan="5" class="empty-row">Error: ${escapeHtml(e.message)}</td></tr>`; }
 }
 function openKriteriaModal() {
+  if (blockGuest()) return;
   if (!currentKriteriaArea) return toast("Pilih area dulu", true);
   document.getElementById("kriteria-modal-title").textContent = "Tambah Item Penilaian";
   document.getElementById("k-edit-mode").value = "";
@@ -1385,6 +1861,7 @@ function openKriteriaModal() {
   document.getElementById("kriteria-modal").classList.add("show");
 }
 function editKriteria(idx) {
+  if (blockGuest()) return;
   const k = kriteriaAdminList[idx];
   if (!k) return;
   document.getElementById("kriteria-modal-title").textContent = "Edit Item Penilaian";
@@ -1401,6 +1878,7 @@ function editKriteria(idx) {
   modal.classList.add("show");
 }
 async function saveKriteria() {
+  if (blockGuest()) return;
   const editMode = document.getElementById("k-edit-mode").value;
   const area = currentKriteriaArea;
   const grade = document.getElementById("k-grade").value;
@@ -1426,6 +1904,7 @@ async function saveKriteria() {
   } catch (e) { toast("Gagal: " + e.message, true); }
 }
 async function hapusKriteria(idx) {
+  if (blockGuest()) return;
   const k = kriteriaAdminList[idx];
   if (!k) return;
   if (!confirm(`YAKIN HAPUS?\n\nGrade ${k.grade} — ${k.item}\n\nTidak bisa dibatalkan.`)) return;
@@ -1441,7 +1920,7 @@ async function hapusKriteria(idx) {
   } catch (e) { toast("Gagal: " + e.message, true); }
 }
 
-/* AUDIT TRAIL */
+/* ========== AUDIT TRAIL ========== */
 async function loadAuditLog() {
   const tb = document.getElementById("audit-body");
   tb.innerHTML = '<tr><td colspan="6" class="empty-row">Memuat log...</td></tr>';
@@ -1454,28 +1933,20 @@ async function loadAuditLog() {
     document.getElementById("audit-info").textContent = `Total ${data.total || auditLogCache.length} aktivitas tercatat`;
   } catch (e) { tb.innerHTML = `<tr><td colspan="6" class="empty-row">Error: ${escapeHtml(e.message)}</td></tr>`; }
 }
-
-/* ✅ PATCH: renderAuditLog — filter 3 kategori, tanpa LOGIN/LOGOUT/SIMPAN_PENILAIAN/HAPUS_RAPORT/AUTO_REFRESH */
 function renderAuditLog() {
   const tb = document.getElementById("audit-body");
   const q = (document.getElementById("audit-search")?.value || "").toLowerCase();
   const filterKategori = document.getElementById("audit-filter-kategori")?.value || "";
-
   const AKSI_PERSONEL = ["TAMBAH_PERSONEL", "EDIT_PERSONEL", "HAPUS_PERSONEL", "SET_STATUS_PERSONEL"];
   const AKSI_KRITERIA = ["TAMBAH_KRITERIA", "EDIT_KRITERIA", "HAPUS_KRITERIA"];
   const AKSI_MESIN_AREA = ["TAMBAH_MESIN", "HAPUS_MESIN", "TAMBAH_AREA", "HAPUS_AREA"];
   const SEMUA_AKSI_TAMPIL = [...AKSI_PERSONEL, ...AKSI_KRITERIA, ...AKSI_MESIN_AREA];
-
   let list = auditLogCache.filter(l => SEMUA_AKSI_TAMPIL.includes(String(l["AKSI"] || "")));
-
   if (filterKategori === "PERSONEL")   list = list.filter(l => AKSI_PERSONEL.includes(String(l["AKSI"] || "")));
   if (filterKategori === "KRITERIA")   list = list.filter(l => AKSI_KRITERIA.includes(String(l["AKSI"] || "")));
   if (filterKategori === "MESIN_AREA") list = list.filter(l => AKSI_MESIN_AREA.includes(String(l["AKSI"] || "")));
-
   if (q) list = list.filter(l => `${l["USER"]||""} ${l["USERNAME"]||""} ${l["AKSI"]||""} ${l["DETAIL"]||""}`.toLowerCase().includes(q));
-
   if (!list.length) { tb.innerHTML = '<tr><td colspan="6" class="empty-row">Tidak ada log sesuai filter</td></tr>'; return; }
-
   tb.innerHTML = list.map(l => {
     const aksi = String(l["AKSI"] || "").toUpperCase();
     let cls = "log-system";
@@ -1493,7 +1964,7 @@ function renderAuditLog() {
   }).join("");
 }
 
-/* MACHINE TAB */
+/* ========== MACHINE TAB ========== */
 function switchMachineTab(tab) {
   const tabComp = document.getElementById("machine-tab-competency");
   const tabMgmt = document.getElementById("machine-tab-manage");
@@ -1504,6 +1975,7 @@ function switchMachineTab(tab) {
     tabComp.style.background = "#2563eb"; tabComp.style.color = "#fff";
     tabMgmt.style.background = "#eef2f7"; tabMgmt.style.color = "#334155";
   } else {
+    if (blockGuest()) return;
     subComp.style.display = "none"; subMgmt.style.display = "";
     tabComp.style.background = "#eef2f7"; tabComp.style.color = "#334155";
     tabMgmt.style.background = "#2563eb"; tabMgmt.style.color = "#fff";
@@ -1511,7 +1983,7 @@ function switchMachineTab(tab) {
   }
 }
 
-/* MANAGE MESIN/AREA */
+/* ========== MANAGE MESIN/AREA ========== */
 function renderManageData() {
   const tbArea = document.getElementById("area-manage-body");
   if (tbArea) {
@@ -1533,8 +2005,12 @@ function renderManageData() {
   if (btnTambahMesin) btnTambahMesin.disabled = areaList.length === 0;
 }
 
-function openAreaModal() { document.getElementById("a-nama").value = ""; document.getElementById("area-modal").classList.add("show"); }
+function openAreaModal() {
+  if (blockGuest()) return;
+  document.getElementById("a-nama").value = ""; document.getElementById("area-modal").classList.add("show");
+}
 async function saveArea() {
+  if (blockGuest()) return;
   const area = document.getElementById("a-nama").value.trim();
   if (!area) return toast("Nama area wajib diisi", true);
   const tag = getUserTag();
@@ -1549,6 +2025,7 @@ async function saveArea() {
   } catch (e) { toast("Gagal: " + e.message, true); }
 }
 async function hapusArea(area) {
+  if (blockGuest()) return;
   if (!confirm(`Hapus area "${area}"?\n\nSemua mesin di area ini akan dihapus.\nSheet Form tidak dihapus otomatis.`)) return;
   const tag = getUserTag();
   try {
@@ -1561,6 +2038,7 @@ async function hapusArea(area) {
   } catch (e) { toast("Gagal: " + e.message, true); }
 }
 function openMesinModal() {
+  if (blockGuest()) return;
   if (!areaList.length) return toast("Tambahkan area dulu", true);
   isiAreaDropdown();
   document.getElementById("m-area").value = "";
@@ -1568,6 +2046,7 @@ function openMesinModal() {
   document.getElementById("mesin-modal").classList.add("show");
 }
 async function saveMesin() {
+  if (blockGuest()) return;
   const area = document.getElementById("m-area").value;
   const mesin = document.getElementById("m-nama").value.trim();
   if (!area || !mesin) return toast("Lengkapi data", true);
@@ -1583,6 +2062,7 @@ async function saveMesin() {
   } catch (e) { toast("Gagal: " + e.message, true); }
 }
 async function hapusMesin(area, mesin) {
+  if (blockGuest()) return;
   if (!confirm(`Hapus mesin "${mesin}" dari area "${area}"?`)) return;
   const tag = getUserTag();
   try {
@@ -1595,7 +2075,7 @@ async function hapusMesin(area, mesin) {
   } catch (e) { toast("Gagal: " + e.message, true); }
 }
 
-/* NAVIGASI */
+/* ========== NAVIGASI ========== */
 document.querySelectorAll(".nav-item").forEach(btn => btn.addEventListener("click", () => {
   document.querySelectorAll(".nav-item").forEach(i => i.classList.remove("active"));
   document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
@@ -1608,8 +2088,9 @@ document.querySelectorAll(".nav-item").forEach(btn => btn.addEventListener("clic
 }));
 document.getElementById("raport-area-filter").addEventListener("change", () => { isiMesinRaportFilter(); renderRaport(); });
 
-/* BACKUP */
+/* ========== BACKUP ========== */
 async function lakukanBackup() {
+  if (blockGuest()) return;
   if (!confirm("Buat file backup sekarang?")) return;
   try {
     toast("Membuat backup...");
@@ -1621,8 +2102,9 @@ async function lakukanBackup() {
   } catch (e) { toast("Gagal backup: " + e.message, true); }
 }
 
-/* MODAL INPUT NILAI */
+/* ========== MODAL INPUT NILAI ========== */
 function openFormModal() {
+  if (blockGuest()) return;
   if (!currentUser) return;
   const empSel = document.getElementById("form-employee");
   empSel.innerHTML = '<option value="">— Pilih Karyawan —</option>' + allData.personel.filter(p => (p["Status"] || "Aktif") !== "Non Aktif").map(p => `<option value="${escapeHtml(p["Employee ID"])}">${escapeHtml(p["Employee Name"])} — ${escapeHtml(p["Job Title Name"]||"")}</option>`).join("");
@@ -1782,6 +2264,7 @@ function renderGradeSections() {
   updateSkorForm();
 }
 function toggleKriteriaForm(idx) {
+  if (blockGuest()) return;
   if (checkedKriteria.has(idx)) checkedKriteria.delete(idx);
   else checkedKriteria.add(idx);
   if (checkedKriteria.has(idx) && !tanggalKriteria[idx]) tanggalKriteria[idx] = new Date().toLocaleDateString("id-ID");
@@ -1850,6 +2333,7 @@ function updateSkorForm() {
   document.getElementById("form-btn-simpan").disabled = !empId || kriteriaAktif.length === 0 || checkedKriteria.size === 0;
 }
 function resetProgressive() {
+  if (blockGuest()) return;
   if (!confirm("Reset semua centang?")) return;
   checkedKriteria = new Set(); catatanKriteria = {}; tanggalKriteria = {};
   gradeTerbuka = ["A"]; gradeLulus = new Set();
@@ -1860,6 +2344,7 @@ function closeModal(id) {
   if (id === "form-modal") resetFormPenuh();
 }
 async function simpanForm() {
+  if (blockGuest()) return;
   const empId = document.getElementById("form-employee").value;
   const emp = allData.personel.find(p => String(p["Employee ID"]) === empId);
   if (!emp) { toast("Pilih karyawan dulu", true); return; }
@@ -1884,6 +2369,7 @@ async function simpanForm() {
   } catch (e) { toast("Gagal konek server", true); }
 }
 async function hapusReport(ts) {
+  if (blockGuest()) return;
   if (!confirm("Hapus data penilaian ini?")) return;
   const tag = getUserTag();
   try {
@@ -1894,8 +2380,9 @@ async function hapusReport(ts) {
   } catch (e) { toast("Gagal hapus", true); }
 }
 
-/* PERSONEL CRUD */
+/* ========== PERSONEL CRUD ========== */
 function openPersonelModal() {
+  if (blockGuest()) return;
   document.getElementById("personel-modal-title").textContent = "Tambah Personel";
   document.getElementById("p-edit-mode").value = "";
   document.getElementById("p-id").value = ""; document.getElementById("p-id").disabled = false;
@@ -1906,6 +2393,7 @@ function openPersonelModal() {
   document.getElementById("personel-modal").classList.add("show");
 }
 function editPersonel(id) {
+  if (blockGuest()) return;
   const p = allData.personel.find(x => String(x["Employee ID"]) === String(id));
   if (!p) return;
   document.getElementById("personel-modal-title").textContent = "Edit Personel";
@@ -1921,6 +2409,7 @@ function editPersonel(id) {
   document.getElementById("personel-modal").classList.add("show");
 }
 async function savePersonel() {
+  if (blockGuest()) return;
   const editMode = document.getElementById("p-edit-mode").value;
   const tag = getUserTag();
   const data = { nik: document.getElementById("p-id").value.trim(), nama: document.getElementById("p-nama").value.trim(), jabatan: document.getElementById("p-jabatan").value.trim(), jobLevel: document.getElementById("p-level").value.trim(), organization: document.getElementById("p-org").value.trim(), gender: document.getElementById("p-gender").value, startDate: document.getElementById("p-start").value, status: document.getElementById("p-status").value, user: tag.user, username: tag.username };
@@ -1935,6 +2424,7 @@ async function savePersonel() {
   } catch (e) { toast("Gagal: " + e.message, true); }
 }
 async function setStatus(nik, status) {
+  if (blockGuest()) return;
   const p = allData.personel.find(x => String(x["Employee ID"]) === String(nik));
   const nm = p ? p["Employee Name"] : nik;
   const verb = status === "Non Aktif" ? "non-aktifkan" : "aktifkan kembali";
@@ -1948,6 +2438,7 @@ async function setStatus(nik, status) {
   } catch (e) { toast("Gagal: " + e.message, true); }
 }
 async function deletePersonel(nik) {
+  if (blockGuest()) return;
   const p = allData.personel.find(x => String(x["Employee ID"]) === String(nik));
   const nm = p ? p["Employee Name"] : nik;
   if (!confirm(`HAPUS PERMANEN: Hapus "${nm}" (${nik})?\n\nGunakan "Non Aktifkan" kalau hanya ingin menyembunyikan.`)) return;
@@ -1960,13 +2451,15 @@ async function deletePersonel(nik) {
   } catch (e) { toast("Gagal: " + e.message, true); }
 }
 
-/* USER CRUD */
+/* ========== USER CRUD ========== */
 function openUserModal() {
+  if (blockGuest()) return;
   document.getElementById("u-nama").value = ""; document.getElementById("u-username").value = "";
   document.getElementById("u-password").value = ""; document.getElementById("u-posisi").value = "Assessor";
   document.getElementById("user-modal").classList.add("show");
 }
 async function saveUser() {
+  if (blockGuest()) return;
   const tag = getUserTag();
   const data = { nama: document.getElementById("u-nama").value.trim(), username: document.getElementById("u-username").value.trim(), password: document.getElementById("u-password").value, posisi: document.getElementById("u-posisi").value, adminUser: tag.username, adminName: tag.user };
   if (!data.username || !data.password) return toast("Username & password wajib", true);
@@ -1978,7 +2471,7 @@ async function saveUser() {
   } catch (e) { toast("Gagal: " + e.message, true); }
 }
 
-/* REFRESH */
+/* ========== REFRESH ========== */
 async function manualRefresh() {
   const btn = document.getElementById("btn-refresh");
   const icon = document.getElementById("refresh-icon");
@@ -1997,20 +2490,22 @@ async function checkForUpdates() {
     const h = JSON.stringify({ p: (data.personel || []).length, r: (data.report || []).length, m: Object.keys(data.mesin || {}).length });
     if (_lastHash && h !== _lastHash) {
       allData.personel = data.personel || []; allData.report = data.report || []; allData.mesin = data.mesin || {};
-      _lastHash = h; renderAll(); renderTop10(); renderGrafikAlat(); toast("✓ Data ter-update");
+      allData.totalMesin = data.totalMesin || 0;
+      _lastHash = h; renderAll(); renderTop10(); renderGrafikAlat(); renderReminderBanner(); toast("✓ Data ter-update");
     }
   } catch (e) {}
 }
 document.addEventListener("visibilitychange", () => { if (!document.hidden && currentUser) checkForUpdates(); });
 setInterval(() => { if (!document.hidden && currentUser) checkForUpdates(); }, 60000);
 
-/* EXPORT PDF */
+/* ========== EXPORT PDF ========== */
 function exportPDF() {
+  if (blockGuest()) return;
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: "landscape" });
   doc.setFontSize(16); doc.text("Competency Report", 14, 15);
   doc.setFontSize(10); doc.text(`Oleh: ${currentUser.nama} · ${new Date().toLocaleString("id-ID")}`, 14, 22);
-  const body = allData.report.map(r => [r["Timestamp"], r["NIK"], r["Nama"], r["Area"], r["Mesin"], r["Grade Dinilai"], r["Item Lulus"]+"/"+r["Total Item"], r["Skor (%)"]+"%", r["Grade Final"]]);
+  const body = allData.report.map(r => [r["Timestamp"], r["NIK"], r["Nama"], r["Area"], r["Mesin"], r["Grade Dinilai"], r["Item Lulus"]+"/"+r["Total Item"], hitungSkorDariDetail(r)+"%", r["Grade Final"]]);
   doc.autoTable({ startY: 28, head: [["Waktu","NIK","Nama","Area","Mesin","Grade","Lulus/Total","Skor","Grade Final"]], body, styles: { fontSize: 8 }, headStyles: { fillColor: [37,99,235] } });
   doc.save(`competency-${new Date().toISOString().slice(0,10)}.pdf`);
   toast("PDF diunduh");
@@ -2018,7 +2513,11 @@ function exportPDF() {
 
 window.addEventListener("DOMContentLoaded", () => {
   const saved = sessionStorage.getItem("user");
-  if (saved) { currentUser = JSON.parse(saved); masukDashboard(); }
+  if (saved) {
+    currentUser = JSON.parse(saved);
+    if (currentUser.role) currentUser.role = String(currentUser.role).toLowerCase();
+    masukDashboard();
+  }
 });
 </script>
 </body>
