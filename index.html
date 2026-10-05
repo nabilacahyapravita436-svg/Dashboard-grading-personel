@@ -808,6 +808,16 @@ function hitungSkorDariDetail(r) {
     return total > 0 ? Math.round(lulus / total * 100) : 0;
   } catch(e) { return 0; }
 }
+function hitungSkorRaport(r) {
+  // SATU sumber skor yang dipakai Raport, Detail Operator, dan Grafik.
+  const { pct, jumlah } = hitungPersenPerGrade(r);
+  const gradesAktif = ["A","B","C","D"].filter(g => jumlah[g] > 0);
+  if (!gradesAktif.length) return 0;
+  return Math.round(
+    gradesAktif.reduce((sum, g) => sum + pct[g], 0) / gradesAktif.length
+  );
+}
+
 function hitungPersenPerGrade(r) {
   const pct = { A: 0, B: 0, C: 0, D: 0 };
   const jumlah = { A: 0, B: 0, C: 0, D: 0 };
@@ -1350,7 +1360,7 @@ function renderHistory(rows) {
   const isAdmin = isAdminUser();
   if (!rows.length) { tb.innerHTML = `<tr><td colspan="${isAdmin?9:8}" class="empty-row">Belum ada riwayat.</td></tr>`; return; }
   tb.innerHTML = rows.slice(0, 200).map(r => {
-    const skor = hitungSkorDariDetail(r);
+    const skor = hitungSkorRaport(r);
     return `
     <tr>
       <td>${escapeHtml(r["Timestamp"])}</td>
@@ -1530,7 +1540,7 @@ function getTop10ForGrade(grade) {
     const gf    = String(r["Grade Final"] || "").toUpperCase();
     if (!nik || !mesin || !gradeOrder[gf]) return;
     const key = nik + "||" + area + "||" + mesin;
-    const skor = hitungSkorDariDetail(r);
+    const skor = hitungSkorRaport(r);
     if (!mapPenilaian[key] || gradeOrder[gf] > gradeOrder[mapPenilaian[key].grade]) {
       mapPenilaian[key] = { nik, nama: r["Nama"]||"-", jabatan: r["Jabatan"]||"-", line: r["Line"]||"-", area, mesin, skor, grade: gf };
     } else if (gradeOrder[gf] === gradeOrder[mapPenilaian[key].grade] && skor > mapPenilaian[key].skor) {
@@ -1694,7 +1704,7 @@ function renderDetailOperator() {
     const { pct, jumlah } = hitungPersenPerGrade(r);
     const gradesAktif = ["A","B","C","D"].filter(g => jumlah[g] > 0);
     if (gradesAktif.length === 0) return;
-    const skorMesin = Math.round(gradesAktif.reduce((sum, g) => sum + pct[g], 0) / gradesAktif.length);
+    const skorMesin = hitungSkorRaport(r);
     totalSkorMesin += skorMesin;
     countMesin++;
   });
@@ -1721,7 +1731,7 @@ function renderDetailOperator() {
           const gf = m["Grade Final"] || "-";
           const { pct, jumlah } = hitungPersenPerGrade(m);
           const gradesAktif = ["A","B","C","D"].filter(g => jumlah[g] > 0);
-          const skor = gradesAktif.length > 0 ? Math.round(gradesAktif.reduce((sum, g) => sum + pct[g], 0) / gradesAktif.length) : 0;
+          const skor = hitungSkorRaport(m);
           return `<div class="mesin-item">
               <div><div class="mesin-item-title">⚙️ ${escapeHtml(m["Mesin"])}</div><div class="mesin-item-meta">📍 Area: <strong>${escapeHtml(m["Area"])}</strong> · 📅 ${escapeHtml(String(m["Timestamp"]).slice(0,10))} · 👤 ${escapeHtml(m["Assessor"]||"-")}</div></div>
               <div class="mesin-item-right"><span class="grade-badge ${gradeClass(gf)}" style="font-size:12px;padding:6px 14px">Grade ${gf}</span><div style="font-size:11px;color:#64748b;margin-top:6px;font-weight:600">${skor}%</div></div>
@@ -1790,7 +1800,7 @@ function renderRaport() {
     const gradeFinal = r["Grade Final"] || "-";
     const { pct, jumlah } = hitungPersenPerGrade(r);
     const gradesAktif = ["A","B","C","D"].filter(g => jumlah[g] > 0);
-    const rataRata = gradesAktif.length > 0 ? Math.round(gradesAktif.reduce((sum, g) => sum + pct[g], 0) / gradesAktif.length) : 0;
+    const rataRata = hitungSkorRaport(r);
     const grades = [
       { letter: "A", label: GRADE_LEVELS["A"], pct: pct.A },
       { letter: "B", label: GRADE_LEVELS["B"], pct: pct.B },
