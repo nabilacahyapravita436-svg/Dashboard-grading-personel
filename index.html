@@ -418,6 +418,7 @@ body.guest-mode .reminder-chip::after{content:" 🔒";font-size:10px}
       <section class="panel filter-bar">
         <div class="filter-group"><label class="filter-label">🔍 Cari</label><input id="personel-search" class="field" type="search" placeholder="ID, nama, jabatan..." oninput="renderEmployee()"></div>
         <div class="filter-group"><label class="filter-label">Status</label><select id="personel-status-filter" class="field" onchange="renderEmployee()"><option value="">Semua</option><option value="Aktif">Aktif</option><option value="Non Aktif">Non Aktif</option></select></div>
+        <div class="filter-group"><label class="filter-label">Organization Name</label><select id="personel-organization-filter" class="field" onchange="renderEmployee()"><option value="">Semua Organization</option></select></div>
         <button class="btn" data-admin-only onclick="openPersonelModal()" style="margin-bottom:0">+ Tambah Personel</button>
       </section>
       <section class="panel table-panel">
@@ -517,7 +518,7 @@ body.guest-mode .reminder-chip::after{content:" 🔒";font-size:10px}
         <div class="table-title-row"><h2 class="table-title">Riwayat Penilaian (Sheet Raport)</h2></div>
         <div class="table-scroll">
           <table>
-            <thead><tr><th>Waktu</th><th>NIK</th><th>Nama</th><th>Area</th><th>Mesin</th><th>Skor</th><th>Grade</th><th>Assessor</th><th data-admin-only>Aksi</th></tr></thead>
+            <thead><tr><th>Waktu</th><th>NIK</th><th>Nama</th><th>Area</th><th>Mesin</th><th>Skor</th><th>Grade</th><th>Bukti</th><th>Assessor</th><th data-admin-only>Aksi</th></tr></thead>
             <tbody id="history-table-body"></tbody>
           </table>
         </div>
@@ -646,6 +647,29 @@ body.guest-mode .reminder-chip::after{content:" 🔒";font-size:10px}
     <div id="form-kriteria-empty" style="display:none;margin-top:16px;padding:30px;text-align:center;background:#f8fafc;border-radius:12px;color:#64748b;font-size:13px">
       ⚠️ Belum ada kriteria untuk <strong>Area + Mesin</strong> ini.<br>Tambahkan dulu di menu Form Kriteria.
     </div>
+    <!-- LAMPIRAN BUKTI PENILAIAN -->
+    <div id="form-bukti-wrapper" style="margin-top:18px;padding:16px;border:1px dashed #bfdbfe;background:#f8fbff;border-radius:14px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#475569;letter-spacing:.04em">LAMPIRAN BUKTI PENILAIAN</div>
+          <div style="font-size:12px;color:#64748b;margin-top:4px">Upload foto sebagai bukti proses/hasil penilaian. Maksimal 1 foto.</div>
+        </div>
+        <label for="form-bukti-foto" class="btn btn-secondary" style="margin:0;cursor:pointer">📷 Pilih Foto</label>
+      </div>
+      <input id="form-bukti-foto" type="file" accept="image/*" capture="environment" style="display:none" onchange="pilihBuktiFoto(event)">
+      <div id="form-bukti-preview" style="display:none;margin-top:12px">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <img id="form-bukti-image" alt="Preview bukti penilaian" style="width:110px;height:80px;object-fit:cover;border-radius:10px;border:1px solid #dbe5f0;background:#fff">
+          <div style="flex:1;min-width:180px">
+            <div id="form-bukti-name" style="font-size:12px;font-weight:700;color:#334155;word-break:break-word"></div>
+            <div id="form-bukti-size" style="font-size:11px;color:#64748b;margin-top:3px"></div>
+          </div>
+          <button type="button" class="btn btn-secondary" onclick="hapusBuktiFoto()" style="margin:0">Hapus</button>
+        </div>
+      </div>
+      <div id="form-bukti-status" style="font-size:11px;color:#64748b;margin-top:10px"></div>
+    </div>
+
     <div class="modal-actions" style="margin-top:22px">
       <button class="btn btn-secondary" onclick="closeModal('form-modal')">Batal</button>
       <button class="btn btn-secondary" onclick="resetProgressive()" id="form-btn-reset" style="display:none">↻ Reset</button>
@@ -1099,6 +1123,7 @@ async function muatSemuaData() {
     Object.entries(allData.mesin).forEach(([area, arr]) => arr.forEach(m => mesinList.push({ area, mesin: m })));
     isiFilterArea();
     isiFilterGrafikAlat();
+    isiFilterOrganizationPersonel();
     isiAreaDropdown();
     renderAll();
     renderTop10();
@@ -1121,6 +1146,28 @@ function isiFilterGrafikAlat() {
   if (!selA) return;
   const areas = Object.keys(allData.mesin || {});
   selA.innerHTML = '<option value="">Semua Area</option>' + areas.map(a => `<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`).join("");
+}
+
+function isiFilterOrganizationPersonel() {
+  const sel = document.getElementById("personel-organization-filter");
+  if (!sel) return;
+
+  const currentValue = sel.value || "";
+  const organizations = [...new Set(
+    allData.personel
+      .map(p => String(p["Organization Name"] || "").trim())
+      .filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b, "id", { sensitivity: "base" }));
+
+  sel.innerHTML =
+    '<option value="">Semua Organization</option>' +
+    organizations.map(org =>
+      `<option value="${escapeHtml(org)}">${escapeHtml(org)}</option>`
+    ).join("");
+
+  if (organizations.includes(currentValue)) {
+    sel.value = currentValue;
+  }
 }
 function isiMesinRaportFilter() {
   const area = document.getElementById("raport-area-filter").value;
@@ -1263,11 +1310,13 @@ function renderEmployee() {
   if (!tb) return;
   const q = (document.getElementById("personel-search")?.value || "").toLowerCase();
   const sf = (document.getElementById("personel-status-filter")?.value || "");
+  const of = (document.getElementById("personel-organization-filter")?.value || "");
   const isAdmin = isAdminUser();
   const isGuestUser = isGuest();
   let list = allData.personel.slice();
   if (q) list = list.filter(p => `${p["Employee ID"]||""} ${p["Employee Name"]||""} ${p["Job Title Name"]||""} ${p["Organization Name"]||""}`.toLowerCase().includes(q));
   if (sf) list = list.filter(p => (p["Status"] || "Aktif") === sf);
+  if (of) list = list.filter(p => String(p["Organization Name"] || "").trim() === of);
   if (!list.length) { tb.innerHTML = '<tr><td colspan="10" class="empty-row">Tidak ada data personel.</td></tr>'; return; }
   tb.innerHTML = list.map((p, i) => {
     const status = p["Status"] || "Aktif";
@@ -1358,7 +1407,7 @@ function renderMatrix(rows) {
 function renderHistory(rows) {
   const tb = document.getElementById("history-table-body");
   const isAdmin = isAdminUser();
-  if (!rows.length) { tb.innerHTML = `<tr><td colspan="${isAdmin?9:8}" class="empty-row">Belum ada riwayat.</td></tr>`; return; }
+  if (!rows.length) { tb.innerHTML = `<tr><td colspan="${isAdmin?10:9}" class="empty-row">Belum ada riwayat.</td></tr>`; return; }
   tb.innerHTML = rows.slice(0, 200).map(r => {
     const skor = hitungSkorRaport(r);
     return `
@@ -1370,6 +1419,7 @@ function renderHistory(rows) {
       <td>${escapeHtml(r["Mesin"])}</td>
       <td>${skor}%</td>
       <td><span class="grade-badge ${gradeClass(r["Grade Final"])}">${escapeHtml(r["Grade Final"])}</span></td>
+      <td>${(r["Bukti Foto URL"] || r["buktiFotoUrl"]) ? `<a href="${escapeHtml(r["Bukti Foto URL"] || r["buktiFotoUrl"])}" target="_blank" rel="noopener" class="btn btn-sm" style="background:#eff6ff;color:#2563eb;text-decoration:none">📷 Lihat</a>` : '<span style="color:#94a3b8">-</span>'}</td>
       <td>${escapeHtml(r["Assessor"])}</td>
       ${isAdmin ? `<td><button class="btn btn-sm btn-danger" onclick="hapusReport('${escapeHtml(r["Timestamp"])}')">Hapus</button></td>` : ""}
     </tr>`;
@@ -1809,7 +1859,8 @@ function renderRaport() {
     ];
     return `<div class="raport-card">
         <div class="raport-card-header">
-          <div><div class="raport-card-title"><span style="font-size:16px">⚙️</span> ${escapeHtml(r["Mesin"])}</div><div class="raport-card-meta">📍 ${escapeHtml(r["Area"])} · 📅 ${escapeHtml(String(r["Timestamp"]).slice(0,16))} · 👤 ${escapeHtml(r["Assessor"]||"-")}</div></div>
+          <div><div class="raport-card-title"><span style="font-size:16px">⚙️</span> ${escapeHtml(r["Mesin"])}</div><div class="raport-card-meta">📍 ${escapeHtml(r["Area"])} · 📅 ${escapeHtml(String(r["Timestamp"]).slice(0,16))} · 👤 ${escapeHtml(r["Assessor"]||"-")}</div>
+            ${r["Bukti Foto URL"] || r["buktiFotoUrl"] ? `<div style="margin-top:8px"><a href="${escapeHtml(r["Bukti Foto URL"] || r["buktiFotoUrl"])}" target="_blank" rel="noopener" class="btn btn-sm" style="background:#eff6ff;color:#2563eb;text-decoration:none">📷 Lihat Bukti Foto</a></div>` : ""}</div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
             <span style="font-size:12px;color:#64748b;font-weight:600">Rata-rata: ${rataRata}%</span>
             <span class="grade-badge ${gradeClass(gradeFinal)}">Grade ${gradeFinal}</span>
@@ -2199,7 +2250,8 @@ function onEmployeeChange() {
   else { const mesinSel = document.getElementById("form-mesin"); if (mesinSel.value) onMesinChange(); }
 }
 function resetFormPenuh() {
-  document.getElementById("form-mesin").innerHTML = '<option value="">— Pilih Mesin —</option>';
+
+  resetBuktiFoto();  document.getElementById("form-mesin").innerHTML = '<option value="">— Pilih Mesin —</option>';
   document.getElementById("form-nik").value = "";
   document.getElementById("form-tgl-masuk").value = "";
   document.getElementById("form-jabatan").value = "";
@@ -2412,6 +2464,141 @@ function closeModal(id) {
   document.getElementById(id).classList.remove("show");
   if (id === "form-modal") resetFormPenuh();
 }
+let buktiFotoState = {
+  file: null,
+  dataUrl: "",
+  nama: "",
+  mime: "",
+  ukuran: 0
+};
+
+function formatUkuranFile(bytes) {
+  if (!bytes) return "0 B";
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function resetBuktiFoto() {
+  buktiFotoState = { file: null, dataUrl: "", nama: "", mime: "", ukuran: 0 };
+  const input = document.getElementById("form-bukti-foto");
+  const preview = document.getElementById("form-bukti-preview");
+  const img = document.getElementById("form-bukti-image");
+  const name = document.getElementById("form-bukti-name");
+  const size = document.getElementById("form-bukti-size");
+  const status = document.getElementById("form-bukti-status");
+  if (input) input.value = "";
+  if (preview) preview.style.display = "none";
+  if (img) img.removeAttribute("src");
+  if (name) name.textContent = "";
+  if (size) size.textContent = "";
+  if (status) status.textContent = "";
+}
+
+function pilihBuktiFoto(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  if (!file.type.startsWith("image/")) {
+    event.target.value = "";
+    return toast("File harus berupa foto/gambar", true);
+  }
+
+  if (file.size > 10 * 1024 * 1024) {
+    event.target.value = "";
+    return toast("Ukuran foto maksimal 10 MB", true);
+  }
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = async () => {
+      try {
+        const maxSide = 1400;
+        const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(img.width * scale));
+        canvas.height = Math.max(1, Math.round(img.height * scale));
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        // Kompres menjadi JPEG agar payload lebih ringan saat dikirim ke backend.
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.72);
+        const approxBytes = Math.max(0, Math.round((dataUrl.length - dataUrl.indexOf(",") - 1) * 0.75));
+
+        buktiFotoState = {
+          file,
+          dataUrl,
+          nama: file.name,
+          mime: "image/jpeg",
+          ukuran: approxBytes
+        };
+
+        const preview = document.getElementById("form-bukti-preview");
+        const image = document.getElementById("form-bukti-image");
+        const name = document.getElementById("form-bukti-name");
+        const size = document.getElementById("form-bukti-size");
+        const status = document.getElementById("form-bukti-status");
+
+        if (image) image.src = dataUrl;
+        if (name) name.textContent = file.name;
+        if (size) size.textContent = `Ukuran setelah kompresi: ${formatUkuranFile(approxBytes)}`;
+        if (status) status.textContent = "✓ Foto siap dilampirkan saat penilaian disimpan.";
+        if (preview) preview.style.display = "block";
+      } catch (e) {
+        toast("Foto gagal diproses", true);
+      }
+    };
+    img.onerror = () => toast("Foto tidak dapat dibaca", true);
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function hapusBuktiFoto() {
+  resetBuktiFoto();
+}
+
+async function uploadBuktiFotoKeServer(emp, area, mesin) {
+  if (!buktiFotoState.dataUrl) return { ok: true, url: "", fileId: "" };
+
+  const status = document.getElementById("form-bukti-status");
+  if (status) status.textContent = "⏳ Mengirim foto bukti...";
+
+  const payload = {
+    action: "uploadBuktiFoto",
+    data: {
+      employeeId: emp["Employee ID"],
+      nama: emp["Employee Name"],
+      area,
+      mesin,
+      fileName: buktiFotoState.nama,
+      mimeType: buktiFotoState.mime,
+      base64: buktiFotoState.dataUrl.split(",")[1],
+      user: currentUser?.nama || "",
+      username: currentUser?.username || ""
+    }
+  };
+
+  const res = await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json();
+
+  if (!data.ok) {
+    throw new Error(data.message || "Upload foto gagal");
+  }
+
+  if (status) status.textContent = "✓ Foto berhasil dikirim.";
+  return {
+    ok: true,
+    url: data.url || data.fileUrl || "",
+    fileId: data.fileId || ""
+  };
+}
+
 async function simpanForm() {
   if (blockGuest()) return;
   const empId = document.getElementById("form-employee").value;
@@ -2427,8 +2614,40 @@ async function simpanForm() {
   const skor = total > 0 ? Math.round(lulus / total * 100) : 0;
   const ringkasanGrade = ["A","B","C","D"].map(g => ({ grade: g, level: GRADE_LEVELS[g], total: perGrade[g].total, lulus: perGrade[g].lulus, status: gradeLulus.has(g) ? "LULUS" : (perGrade[g].total === 0 ? "-" : "BELUM") }));
   const detailKriteria = kriteriaAktif.map((k, i) => ({ no: k.no, grade: k.grade, kategori: k.kategori, item: k.item, terpenuhi: checkedKriteria.has(i), tanggal: tanggalKriteria[i] || "", catatan: catatanKriteria[i] || "" }));
-  const payload = { action: "simpanForm", data: { employeeId: emp["Employee ID"], nama: emp["Employee Name"], jabatan: emp["Job Title Name"] || "", line: emp["Organization Name"] || "", area: area, mesin: mesin, gradeDinilai: gradeDinilai, gradeFinal: gradeFinal, totalItem: total, itemLulus: lulus, skor: skor, assessor: currentUser.nama, assessorUsername: currentUser.username, ringkasanGrade: JSON.stringify(ringkasanGrade), detailKriteria: JSON.stringify(detailKriteria), catatan: "" } };
+  let buktiFoto = { url: "", fileId: "" };
+
   try {
+    // Foto diupload lebih dulu. Yang disimpan di Raport adalah URL/ID file,
+    // bukan base64, sehingga Sheet tidak penuh oleh data gambar.
+    if (buktiFotoState.dataUrl) {
+      buktiFoto = await uploadBuktiFotoKeServer(emp, area, mesin);
+    }
+
+    const payload = {
+      action: "simpanForm",
+      data: {
+        employeeId: emp["Employee ID"],
+        nama: emp["Employee Name"],
+        jabatan: emp["Job Title Name"] || "",
+        line: emp["Organization Name"] || "",
+        area: area,
+        mesin: mesin,
+        gradeDinilai: gradeDinilai,
+        gradeFinal: gradeFinal,
+        totalItem: total,
+        itemLulus: lulus,
+        skor: skor,
+        assessor: currentUser.nama,
+        assessorUsername: currentUser.username,
+        ringkasanGrade: JSON.stringify(ringkasanGrade),
+        detailKriteria: JSON.stringify(detailKriteria),
+        catatan: "",
+        buktiFotoUrl: buktiFoto.url,
+        buktiFotoFileId: buktiFoto.fileId,
+        buktiFotoNama: buktiFotoState.nama || ""
+      }
+    };
+
     const res = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) });
     const data = await res.json();
     if (!data.ok) { toast(data.message || "Gagal simpan", true); return; }
