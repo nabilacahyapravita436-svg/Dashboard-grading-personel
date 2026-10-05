@@ -608,6 +608,10 @@ body.guest-mode .reminder-chip::after{content:" 🔒";font-size:10px}
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px">
       <div style="background:#f8fafc;border:1px solid #e7edf5;border-radius:12px;padding:16px">
+        <label style="font-size:11px;font-weight:700;color:#475569;letter-spacing:.04em">ORGANIZATION NAME</label>
+        <select id="form-organization" class="field" style="margin:6px 0 12px" onchange="onOrganizationChange()">
+          <option value="">— Semua Organization —</option>
+        </select>
         <label style="font-size:11px;font-weight:700;color:#475569;letter-spacing:.04em">NAMA KARYAWAN</label>
         <select id="form-employee" class="field" style="margin:6px 0 12px" onchange="onEmployeeChange()"><option value="">— Pilih Karyawan —</option></select>
         <label style="font-size:11px;font-weight:700;color:#475569;letter-spacing:.04em">NIK</label>
@@ -2106,8 +2110,8 @@ async function lakukanBackup() {
 function openFormModal() {
   if (blockGuest()) return;
   if (!currentUser) return;
-  const empSel = document.getElementById("form-employee");
-  empSel.innerHTML = '<option value="">— Pilih Karyawan —</option>' + allData.personel.filter(p => (p["Status"] || "Aktif") !== "Non Aktif").map(p => `<option value="${escapeHtml(p["Employee ID"])}">${escapeHtml(p["Employee Name"])} — ${escapeHtml(p["Job Title Name"]||"")}</option>`).join("");
+  isiOrganizationFilter();
+  isiEmployeeFilter();
   const areaSel = document.getElementById("form-area");
   areaSel.innerHTML = '<option value="">— Pilih Area —</option>' + Object.keys(allData.mesin).map(a => `<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`).join("");
   document.getElementById("form-assessor").value = currentUser.nama || "-";
@@ -2115,6 +2119,61 @@ function openFormModal() {
   resetFormPenuh();
   document.getElementById("form-modal").classList.add("show");
 }
+function isiOrganizationFilter(selectedValue = "") {
+  const orgSel = document.getElementById("form-organization");
+  if (!orgSel) return;
+
+  const organizations = [...new Set(
+    allData.personel
+      .filter(p => (p["Status"] || "Aktif") !== "Non Aktif")
+      .map(p => String(p["Organization Name"] || "").trim())
+      .filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b, "id", { sensitivity: "base" }));
+
+  orgSel.innerHTML = '<option value="">— Semua Organization —</option>' +
+    organizations.map(org => `<option value="${escapeHtml(org)}">${escapeHtml(org)}</option>`).join("");
+
+  if (selectedValue && organizations.includes(selectedValue)) {
+    orgSel.value = selectedValue;
+  } else {
+    orgSel.value = "";
+  }
+}
+
+function isiEmployeeFilter(selectedEmployeeId = "") {
+  const empSel = document.getElementById("form-employee");
+  const orgSel = document.getElementById("form-organization");
+  if (!empSel) return;
+
+  const selectedOrg = orgSel ? String(orgSel.value || "").trim() : "";
+  const activeEmployees = allData.personel.filter(p => (p["Status"] || "Aktif") !== "Non Aktif");
+  const filtered = selectedOrg
+    ? activeEmployees.filter(p => String(p["Organization Name"] || "").trim() === selectedOrg)
+    : activeEmployees;
+
+  empSel.innerHTML = '<option value="">— Pilih Karyawan —</option>' +
+    filtered.map(p => `<option value="${escapeHtml(p["Employee ID"])}">${escapeHtml(p["Employee Name"])} — ${escapeHtml(p["Job Title Name"] || "")}</option>`).join("");
+
+  if (selectedEmployeeId && filtered.some(p => String(p["Employee ID"]) === String(selectedEmployeeId))) {
+    empSel.value = selectedEmployeeId;
+  } else {
+    empSel.value = "";
+  }
+}
+
+function onOrganizationChange() {
+  const empSel = document.getElementById("form-employee");
+  const currentEmployee = empSel ? empSel.value : "";
+  isiEmployeeFilter();
+
+  // Jika karyawan sebelumnya tidak termasuk organization yang dipilih, reset detailnya.
+  if (!empSel.value) {
+    onEmployeeChange();
+  } else if (currentEmployee) {
+    onEmployeeChange();
+  }
+}
+
 function onEmployeeChange() {
   const empId = document.getElementById("form-employee").value;
   if (!empId) { document.getElementById("form-nik").value = ""; document.getElementById("form-tgl-masuk").value = ""; document.getElementById("form-jabatan").value = ""; return; }
