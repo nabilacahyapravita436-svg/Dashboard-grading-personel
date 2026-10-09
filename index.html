@@ -148,7 +148,6 @@ tr.row-lulus td:first-child::before{content:"";position:absolute;left:0;top:0;bo
 body.guest-mode .guest-banner{display:block}
 
 /* ===== GLOBAL REMINDER / TIME BOMB ===== */
-/* Selalu berada di atas semua menu dan view, tanpa mengambil ruang layout. */
 .reminder-banner{
   display:none;
   position:fixed;
@@ -183,16 +182,8 @@ body.guest-mode .guest-banner{display:block}
 .reminder-minimize{width:30px;height:30px;display:grid;place-items:center;flex:0 0 30px;border:1px solid rgba(0,0,0,.1);border-radius:9px;background:rgba(255,255,255,.75);color:inherit;font-size:18px;font-weight:700;line-height:1;cursor:pointer;transition:.15s}
 .reminder-minimize:hover{background:#fff;transform:scale(1.05)}
 .reminder-banner.minimized{
-  width:58px;
-  height:58px;
-  min-height:58px;
-  max-height:58px;
-  padding:0;
-  border-radius:17px;
-  align-items:center;
-  justify-content:center;
-  gap:0;
-  cursor:pointer;
+  width:58px;height:58px;min-height:58px;max-height:58px;padding:0;border-radius:17px;
+  align-items:center;justify-content:center;gap:0;cursor:pointer;
   box-shadow:0 12px 32px rgba(15,23,42,.22);
 }
 .reminder-banner.minimized .reminder-icon{width:58px;height:58px;border-radius:17px;font-size:25px}
@@ -702,7 +693,7 @@ body.guest-mode .reminder-chip::after{content:" 🔒";font-size:10px}
   </div>
 </div>
 
-<!-- MODAL: PERSONEL -->
+<!-- MODAL: PERSONEL (dengan dropdown Organization) -->
 <div id="personel-modal" class="modal-backdrop">
   <div class="modal">
     <h3 id="personel-modal-title">Tambah Personel</h3>
@@ -711,7 +702,11 @@ body.guest-mode .reminder-chip::after{content:" 🔒";font-size:10px}
     <label>Employee Name</label><input id="p-nama" placeholder="Nama lengkap">
     <label>Job Title Name</label><input id="p-jabatan" placeholder="Operator Granulasi">
     <label>Job Level Name</label><input id="p-level" placeholder="Operator">
-    <label>Organization Name</label><input id="p-org" placeholder="Granulasi">
+    <label>Organization Name</label>
+    <select id="p-org" class="field" onchange="onOrgPersonelChange()">
+      <option value="">— Pilih Organization —</option>
+    </select>
+    <input id="p-org-manual" class="field" placeholder="Ketik nama organization baru..." style="margin-top:8px;display:none">
     <label>Gender</label><select id="p-gender"><option value="">-</option><option>Male</option><option>Female</option></select>
     <label>Start Date</label><input id="p-start" type="date">
     <label>Status</label><select id="p-status"><option>Aktif</option><option>Non Aktif</option></select>
@@ -772,7 +767,7 @@ body.guest-mode .reminder-chip::after{content:" 🔒";font-size:10px}
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbwhOUWY9VPii_yzH_TSnScNZDkF7AdlnRhpFbsPzfdPiQFOFhyw23zfHnCnVOdgOSkwkA/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbz1ATPLeS2hCk7tUg6AhkETJ7R4OkE1bFT72s5eWzBMmzZyAxt9oCgusHoowakyoeJoHQ/exec";
 
 /* ===== BATAS HARI UNTUK REMINDER ===== */
 const BATAS_HARI_PERLU_DINILAI = 90; // 3 bulan
@@ -833,7 +828,6 @@ function hitungSkorDariDetail(r) {
   } catch(e) { return 0; }
 }
 function hitungSkorRaport(r) {
-  // SATU sumber skor yang dipakai Raport, Detail Operator, dan Grafik.
   const { pct, jumlah } = hitungPersenPerGrade(r);
   const gradesAktif = ["A","B","C","D"].filter(g => jumlah[g] > 0);
   if (!gradesAktif.length) return 0;
@@ -861,24 +855,16 @@ function hitungPersenPerGrade(r) {
   return { pct, jumlah };
 }
 
-/* ========== PARSE TIMESTAMP DARI SHEET (yyyy-MM-dd HH:mm:ss ATAU dd/MM/yyyy ATAU Date) ========== */
+/* ========== PARSE TIMESTAMP ========== */
 function parseTimestamp(ts) {
   if (!ts) return null;
   const s = String(ts).trim();
-
-  // yyyy-MM-dd HH:mm:ss (format dari backend normalizer)
   let m = s.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})/);
   if (m) return new Date(+m[1], +m[2]-1, +m[3], +m[4], +m[5], +m[6]);
-
-  // yyyy-MM-dd saja
   m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (m) return new Date(+m[1], +m[2]-1, +m[3]);
-
-  // dd/MM/yyyy
   m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
   if (m) return new Date(+m[3], +m[2]-1, +m[1]);
-
-  // fallback
   const d = new Date(s);
   if (!isNaN(d.getTime())) return d;
   return null;
@@ -890,9 +876,8 @@ function hariSejak(ts) {
   return Math.floor(diff / (1000 * 60 * 60 * 24));
 }
 
-/* ========== REMINDER: hitung operator yang perlu dinilai ulang ========== */
+/* ========== REMINDER ========== */
 function hitungReminder() {
-  // Ambil penilaian TERAKHIR per NIK (tanpa memandang mesin)
   const lastByNIK = {};
   allData.report.forEach(r => {
     const nik = String(r["NIK"] || "").trim();
@@ -908,14 +893,13 @@ function hitungReminder() {
   const list = [];
   allData.personel.forEach(p => {
     const status = p["Status"] || "Aktif";
-    if (status === "Non Aktif") return; // skip non-aktif
+    if (status === "Non Aktif") return;
     const nik  = String(p["Employee ID"] || "").trim();
     const nama = p["Employee Name"] || "(tanpa nama)";
     if (!nik) return;
 
     const last = lastByNIK[nik];
     if (!last) {
-      // Belum pernah dinilai sama sekali
       list.push({ nik, nama, hari: null, terakhir: null });
       return;
     }
@@ -926,7 +910,6 @@ function hitungReminder() {
     }
   });
 
-  // Urutkan: yang paling lama di atas, yang belum pernah di paling atas
   list.sort((a, b) => {
     if (a.hari === null && b.hari === null) return a.nama.localeCompare(b.nama);
     if (a.hari === null) return -1;
@@ -937,7 +920,7 @@ function hitungReminder() {
   return list;
 }
 
-/* ========== GLOBAL REMINDER / TIME BOMB CONTROLS ========== */
+/* ========== REMINDER CONTROLS ========== */
 function toggleReminder(event) {
   if (event) event.stopPropagation();
   const banner = document.getElementById("reminder-banner");
@@ -978,7 +961,6 @@ document.addEventListener("click", function(event) {
   }
 });
 
-/* ========== RENDER REMINDER BANNER ========== */
 function renderReminderBanner() {
   const banner = document.getElementById("reminder-banner");
   const title = document.getElementById("reminder-title");
@@ -993,7 +975,6 @@ function renderReminderBanner() {
     return;
   }
 
-  // Tentukan level: danger kalau ada yang > 180 hari atau belum pernah dinilai
   const adaDanger = list.some(item => item.hari === null || item.hari >= 180);
   banner.classList.remove("show", "warn", "danger");
   banner.classList.add("show", adaDanger ? "danger" : "warn");
@@ -1022,20 +1003,16 @@ function renderReminderBanner() {
   }).join("");
 }
 
-/* ========== AKSI KLIK CHIP: buka modal Input Nilai dengan operator terisi ========== */
 function bukaFormUntukOperator(nik) {
   if (blockGuest()) return;
   if (!currentUser) return;
 
-  // Buka modal
   openFormModal();
 
-  // Set operator
   const empSel = document.getElementById("form-employee");
   empSel.value = nik;
   onEmployeeChange();
 
-  // Scroll ke atas modal supaya kelihatan formnya
   const modalBox = document.querySelector("#form-modal .modal");
   if (modalBox) modalBox.scrollTop = 0;
 
@@ -1073,7 +1050,6 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
   }
 });
 
-/* ========== MASUK SEBAGAI GUEST ========== */
 function masukSebagaiGuest() {
   currentUser = { nama: "Guest", username: "guest", posisi: "Guest", role: "guest" };
   sessionStorage.setItem("user", JSON.stringify(currentUser));
@@ -1148,6 +1124,7 @@ function isiFilterGrafikAlat() {
   selA.innerHTML = '<option value="">Semua Area</option>' + areas.map(a => `<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`).join("");
 }
 
+/* ========== DROPDOWN ORGANIZATION (FILTER EMPLOYEE) ========== */
 function isiFilterOrganizationPersonel() {
   const sel = document.getElementById("personel-organization-filter");
   if (!sel) return;
@@ -1169,6 +1146,85 @@ function isiFilterOrganizationPersonel() {
     sel.value = currentValue;
   }
 }
+
+/* ========== DROPDOWN ORGANIZATION (MODAL PERSONEL) ========== */
+function isiOrganizationDropdownPersonel(selectedValue = "") {
+  const sel = document.getElementById("p-org");
+  const manual = document.getElementById("p-org-manual");
+  if (!sel) return;
+
+  const organizations = [...new Set(
+    allData.personel
+      .map(p => String(p["Organization Name"] || "").trim())
+      .filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b, "id", { sensitivity: "base" }));
+
+  sel.innerHTML =
+    '<option value="">— Pilih Organization —</option>' +
+    organizations.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join("") +
+    '<option value="__new__">+ Tambah Organization Baru…</option>';
+
+  // Kalau nilai terpilih ada di daftar → pilih; kalau tidak & tidak kosong → set manual
+  if (selectedValue && organizations.includes(selectedValue)) {
+    sel.value = selectedValue;
+    if (manual) manual.style.display = "none";
+  } else if (selectedValue) {
+    sel.value = "__new__";
+    if (manual) {
+      manual.style.display = "block";
+      manual.value = selectedValue;
+    }
+  } else {
+    sel.value = "";
+    if (manual) { manual.style.display = "none"; manual.value = ""; }
+  }
+}
+
+function onOrgPersonelChange() {
+  const sel = document.getElementById("p-org");
+  const manual = document.getElementById("p-org-manual");
+  if (!sel || !manual) return;
+  if (sel.value === "__new__") {
+    manual.style.display = "block";
+    manual.focus();
+  } else {
+    manual.style.display = "none";
+    manual.value = "";
+  }
+}
+
+function getOrgPersonelValue() {
+  const sel = document.getElementById("p-org");
+  const manual = document.getElementById("p-org-manual");
+  if (!sel) return "";
+  if (sel.value === "__new__") {
+    return manual ? manual.value.trim() : "";
+  }
+  return sel.value.trim();
+}
+
+/* ========== DROPDOWN ORGANIZATION (MODAL INPUT NILAI) ========== */
+function isiOrganizationFilter(selectedValue = "") {
+  const orgSel = document.getElementById("form-organization");
+  if (!orgSel) return;
+
+  const organizations = [...new Set(
+    allData.personel
+      .filter(p => (p["Status"] || "Aktif") !== "Non Aktif")
+      .map(p => String(p["Organization Name"] || "").trim())
+      .filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b, "id", { sensitivity: "base" }));
+
+  orgSel.innerHTML = '<option value="">— Semua Organization —</option>' +
+    organizations.map(org => `<option value="${escapeHtml(org)}">${escapeHtml(org)}</option>`).join("");
+
+  if (selectedValue && organizations.includes(selectedValue)) {
+    orgSel.value = selectedValue;
+  } else {
+    orgSel.value = "";
+  }
+}
+
 function isiMesinRaportFilter() {
   const area = document.getElementById("raport-area-filter").value;
   const sel = document.getElementById("raport-mesin-filter");
@@ -1203,7 +1259,6 @@ function renderAll() {
   renderReminderBanner();
 }
 
-/* ✅ KPI: Total Employee (master) + Total Dinilai (NIK×Mesin) + Distribusi Grade (NIK×Mesin) */
 function renderKpi(rows) {
   const gradeOrder = { "A": 1, "B": 2, "C": 3, "D": 4 };
   document.getElementById("kpi-employee-value").textContent = allData.personel.length;
@@ -1514,7 +1569,6 @@ function renderCharts(rows) {
   });
 }
 
-/* ========== GRAFIK TOP 5 ALAT ========== */
 function renderGrafikAlat() {
   const container = document.getElementById("grafik-alat-content");
   if (!container) return;
@@ -1579,7 +1633,6 @@ function renderGrafikAlat() {
     </div>`;
 }
 
-/* ========== TOP 10 — per NIK × Area × Mesin ========== */
 function getTop10ForGrade(grade) {
   const gradeOrder = { "A": 1, "B": 2, "C": 3, "D": 4 };
   const mapPenilaian = {};
@@ -1676,7 +1729,6 @@ function switchTop10Detail(grade) {
   renderTop10Detail(dataPerGrade);
 }
 
-/* ========== DETAIL OPERATOR ========== */
 function cariOperatorDetail() {
   const q = (document.getElementById("detail-op-search").value || "").toLowerCase().trim();
   const suggest = document.getElementById("detail-op-suggest");
@@ -1789,7 +1841,6 @@ function renderDetailOperator() {
         }).join("")}</div>`}`;
 }
 
-/* ========== RAPORT ========== */
 function cariKaryawanRaport() {
   const q = (document.getElementById("raport-search").value || "").toLowerCase().trim();
   const suggest = document.getElementById("raport-search-suggest");
@@ -2180,26 +2231,6 @@ function openFormModal() {
   resetFormPenuh();
   document.getElementById("form-modal").classList.add("show");
 }
-function isiOrganizationFilter(selectedValue = "") {
-  const orgSel = document.getElementById("form-organization");
-  if (!orgSel) return;
-
-  const organizations = [...new Set(
-    allData.personel
-      .filter(p => (p["Status"] || "Aktif") !== "Non Aktif")
-      .map(p => String(p["Organization Name"] || "").trim())
-      .filter(Boolean)
-  )].sort((a, b) => a.localeCompare(b, "id", { sensitivity: "base" }));
-
-  orgSel.innerHTML = '<option value="">— Semua Organization —</option>' +
-    organizations.map(org => `<option value="${escapeHtml(org)}">${escapeHtml(org)}</option>`).join("");
-
-  if (selectedValue && organizations.includes(selectedValue)) {
-    orgSel.value = selectedValue;
-  } else {
-    orgSel.value = "";
-  }
-}
 
 function isiEmployeeFilter(selectedEmployeeId = "") {
   const empSel = document.getElementById("form-employee");
@@ -2227,7 +2258,6 @@ function onOrganizationChange() {
   const currentEmployee = empSel ? empSel.value : "";
   isiEmployeeFilter();
 
-  // Jika karyawan sebelumnya tidak termasuk organization yang dipilih, reset detailnya.
   if (!empSel.value) {
     onEmployeeChange();
   } else if (currentEmployee) {
@@ -2250,8 +2280,8 @@ function onEmployeeChange() {
   else { const mesinSel = document.getElementById("form-mesin"); if (mesinSel.value) onMesinChange(); }
 }
 function resetFormPenuh() {
-
-  resetBuktiFoto();  document.getElementById("form-mesin").innerHTML = '<option value="">— Pilih Mesin —</option>';
+  resetBuktiFoto();
+  document.getElementById("form-mesin").innerHTML = '<option value="">— Pilih Mesin —</option>';
   document.getElementById("form-nik").value = "";
   document.getElementById("form-tgl-masuk").value = "";
   document.getElementById("form-jabatan").value = "";
@@ -2521,8 +2551,6 @@ function pilihBuktiFoto(event) {
         canvas.height = Math.max(1, Math.round(img.height * scale));
         const ctx = canvas.getContext("2d");
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-        // Kompres menjadi JPEG agar payload lebih ringan saat dikirim ke backend.
         const dataUrl = canvas.toDataURL("image/jpeg", 0.72);
         const approxBytes = Math.max(0, Math.round((dataUrl.length - dataUrl.indexOf(",") - 1) * 0.75));
 
@@ -2617,8 +2645,6 @@ async function simpanForm() {
   let buktiFoto = { url: "", fileId: "" };
 
   try {
-    // Foto diupload lebih dulu. Yang disimpan di Raport adalah URL/ID file,
-    // bukan base64, sehingga Sheet tidak penuh oleh data gambar.
     if (buktiFotoState.dataUrl) {
       buktiFoto = await uploadBuktiFotoKeServer(emp, area, mesin);
     }
@@ -2675,7 +2701,8 @@ function openPersonelModal() {
   document.getElementById("p-edit-mode").value = "";
   document.getElementById("p-id").value = ""; document.getElementById("p-id").disabled = false;
   document.getElementById("p-nama").value = ""; document.getElementById("p-jabatan").value = "";
-  document.getElementById("p-level").value = ""; document.getElementById("p-org").value = "";
+  document.getElementById("p-level").value = "";
+  isiOrganizationDropdownPersonel(); // ← dropdown organization
   document.getElementById("p-gender").value = ""; document.getElementById("p-start").value = "";
   document.getElementById("p-status").value = "Aktif";
   document.getElementById("personel-modal").classList.add("show");
@@ -2690,7 +2717,7 @@ function editPersonel(id) {
   document.getElementById("p-nama").value = p["Employee Name"] || "";
   document.getElementById("p-jabatan").value = p["Job Title Name"] || "";
   document.getElementById("p-level").value = p["Job Level Name"] || "";
-  document.getElementById("p-org").value = p["Organization Name"] || "";
+  isiOrganizationDropdownPersonel(p["Organization Name"] || ""); // ← dropdown organization
   document.getElementById("p-gender").value = p["Gender"] || "";
   document.getElementById("p-start").value = String(p["Start Date"] || "").slice(0, 10);
   document.getElementById("p-status").value = p["Status"] || "Aktif";
@@ -2700,7 +2727,18 @@ async function savePersonel() {
   if (blockGuest()) return;
   const editMode = document.getElementById("p-edit-mode").value;
   const tag = getUserTag();
-  const data = { nik: document.getElementById("p-id").value.trim(), nama: document.getElementById("p-nama").value.trim(), jabatan: document.getElementById("p-jabatan").value.trim(), jobLevel: document.getElementById("p-level").value.trim(), organization: document.getElementById("p-org").value.trim(), gender: document.getElementById("p-gender").value, startDate: document.getElementById("p-start").value, status: document.getElementById("p-status").value, user: tag.user, username: tag.username };
+  const data = {
+    nik: document.getElementById("p-id").value.trim(),
+    nama: document.getElementById("p-nama").value.trim(),
+    jabatan: document.getElementById("p-jabatan").value.trim(),
+    jobLevel: document.getElementById("p-level").value.trim(),
+    organization: getOrgPersonelValue(), // ← ambil nilai dari dropdown / manual
+    gender: document.getElementById("p-gender").value,
+    startDate: document.getElementById("p-start").value,
+    status: document.getElementById("p-status").value,
+    user: tag.user,
+    username: tag.username
+  };
   if (!data.nik || !data.nama) return toast("Employee ID & Nama wajib diisi", true);
   try {
     const action = editMode ? "updatePersonel" : "addPersonel";
